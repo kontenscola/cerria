@@ -3,7 +3,7 @@
 // Cerria — Supabase client + auth helpers
 // ─────────────────────────────────────────────────────────────
 
-const SUPABASE_URL = 'https://uvggjbejmijdztfykylh.supabase.co';
+const SUPABASE_URL = 'https://uvggjbejmjjdztfykylh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_3Wi4xhsozPUJIvaLTiDRAg_Z-N18-QF';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
