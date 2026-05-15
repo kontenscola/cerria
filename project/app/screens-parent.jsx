@@ -61,7 +61,42 @@ const ParentPin = ({ go }) => {
   );
 };
 
-const ParentDash = ({ go }) => {
+const TYPE_META = {
+  book:      { l: 'Buku',          c: '#FF8C42', i: 'book'     },
+  mission:   { l: 'Modul Belajar', c: '#3BB273', i: 'map'      },
+  video:     { l: 'Video Book',    c: '#4EA8DE', i: 'play'     },
+  lagu:      { l: 'Lagu',          c: '#FF7A93', i: 'volume'   },
+  worksheet: { l: 'Worksheet',     c: '#9B59B6', i: 'subtitle' },
+  majalah:   { l: 'Majalah',       c: '#FFC857', i: 'magazine' },
+};
+
+const fmtMins = (m) => m >= 60 ? `${Math.floor(m/60)}j ${m%60}m` : `${m} mnt`;
+
+const ParentDash = ({ go, child }) => {
+  const [stats, setStats] = uS4(null);
+  const [logs, setLogs] = uS4([]);
+  const [loading, setLoading] = uS4(true);
+
+  React.useEffect(() => {
+    if (!child) { setLoading(false); return; }
+    Promise.all([
+      window.CerriaDB.getTodayStats(child.id),
+      window.CerriaDB.getActivityLog(child.id, 10),
+    ]).then(([s, l]) => { setStats(s); setLogs(l); setLoading(false); });
+  }, [child && child.id]);
+
+  const todayMins = stats ? stats.totalMinutes : 0;
+  const limitMins = 120;
+  const pct = Math.min(1, todayMins / limitMins);
+
+  const byType = {};
+  (stats ? stats.logs : []).forEach(r => {
+    byType[r.type] = (byType[r.type] || 0) + (r.duration || 0);
+  });
+  const maxSecs = Math.max(...Object.values(byType), 1);
+
+  const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+
   return (
     <div className="scroll fade-in">
       <div className="topbar">
@@ -72,64 +107,89 @@ const ParentDash = ({ go }) => {
 
       <div className="wrap" style={{ marginTop: 6 }}>
         <div className="card-warm" style={{ padding: 16 }}>
-          <div className="small" style={{ color: 'var(--ink-2)', fontWeight: 700 }}>HARI INI — JUMAT, 2 MEI</div>
-          <div className="row" style={{ marginTop: 10, justifyContent: 'space-between' }}>
-            <div>
-              <div className="display" style={{ fontSize: 26 }}>1j 12m</div>
-              <div className="small">Total waktu Tessa</div>
-            </div>
-            <div style={{ width: 80, height: 80, position: 'relative' }}>
-              <svg width="80" height="80" viewBox="0 0 80 80">
-                <circle cx="40" cy="40" r="32" stroke="rgba(42,31,24,.10)" strokeWidth="8" fill="none"/>
-                <circle cx="40" cy="40" r="32" stroke="#FF8C42" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray={`${0.6*201} 201`} transform="rotate(-90 40 40)"/>
-              </svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 800 }}>60%</div>
-            </div>
-          </div>
-          <div className="small" style={{ marginTop: 8 }}>Batas harian: 2 jam</div>
+          <div className="small" style={{ color: 'var(--ink-2)', fontWeight: 700 }}>HARI INI — {today}</div>
+          {loading ? (
+            <div className="small" style={{ marginTop: 12, color: 'var(--ink-2)' }}>Memuat data...</div>
+          ) : (
+            <>
+              <div className="row" style={{ marginTop: 10, justifyContent: 'space-between' }}>
+                <div>
+                  <div className="display" style={{ fontSize: 26 }}>{fmtMins(todayMins)}</div>
+                  <div className="small">Total waktu {child ? child.name : 'anak'}</div>
+                </div>
+                <div style={{ width: 80, height: 80, position: 'relative' }}>
+                  <svg width="80" height="80" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="32" stroke="rgba(42,31,24,.10)" strokeWidth="8" fill="none"/>
+                    <circle cx="40" cy="40" r="32" stroke="#FF8C42" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray={`${pct*201} 201`} transform="rotate(-90 40 40)"/>
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 800 }}>{Math.round(pct*100)}%</div>
+                </div>
+              </div>
+              <div className="small" style={{ marginTop: 8 }}>Batas harian: {fmtMins(limitMins)}</div>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="wrap" style={{ marginTop: 14 }}>
-        <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Pekan Ini</div>
-        <div className="card" style={{ padding: 16 }}>
-          <div className="row" style={{ alignItems: 'flex-end', justifyContent: 'space-between', height: 100 }}>
-            {[40, 70, 55, 85, 60, 30, 0].map((v, i) => (
-              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 18, height: `${v}%`, borderRadius: 6, background: i === 3 ? 'linear-gradient(180deg,#FFC857,#FF8C42)' : '#FFE3CD' }}/>
-                <span className="small" style={{ fontSize: 11 }}>{['S','S','R','K','J','S','M'][i]}</span>
-              </div>
-            ))}
+      {!loading && Object.keys(byType).length > 0 && (
+        <div className="wrap" style={{ marginTop: 14 }}>
+          <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Aktivitas per Fitur</div>
+          <div className="card" style={{ padding: 16 }}>
+            {Object.entries(byType).map(([type, secs]) => {
+              const m = TYPE_META[type] || { l: type, c: '#8C7A6B', i: 'star' };
+              const mins = Math.floor(secs / 60);
+              return (
+                <div key={type} style={{ marginBottom: 12 }}>
+                  <div className="row" style={{ justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontWeight: 700, fontSize: 14 }}>{m.l}</span>
+                    <span className="small" style={{ fontWeight: 700 }}>{fmtMins(mins)}</span>
+                  </div>
+                  <div className="progress-track"><div className="progress-fill" style={{ width: `${(secs/maxSecs)*100}%`, background: m.c }}/></div>
+                </div>
+              );
+            })}
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="wrap" style={{ marginTop: 14 }}>
-        <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Aktivitas per Fitur</div>
-        <div className="card" style={{ padding: 16 }}>
-          {[
-            { l: 'Buku',          v: '38 mnt', p: 0.55, c: '#FF8C42' },
-            { l: 'Modul Belajar', v: '24 mnt', p: 0.35, c: '#3BB273' },
-            { l: 'Video Book',    v: '10 mnt', p: 0.15, c: '#4EA8DE' },
-            { l: 'Majalah',       v: '0 mnt',  p: 0.0,  c: '#9B59B6' },
-          ].map(r => (
-            <div key={r.l} style={{ marginBottom: 12 }}>
-              <div className="row" style={{ justifyContent: 'space-between', marginBottom: 4 }}>
-                <span style={{ fontWeight: 700, fontSize: 14 }}>{r.l}</span>
-                <span className="small" style={{ fontWeight: 700 }}>{r.v}</span>
-              </div>
-              <div className="progress-track"><div className="progress-fill" style={{ width: `${r.p*100}%`, background: r.c }}/></div>
-            </div>
-          ))}
+      {!loading && logs.length > 0 && (
+        <div className="wrap" style={{ marginTop: 14 }}>
+          <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Aktivitas Terbaru</div>
+          <div className="card" style={{ padding: 4 }}>
+            {logs.map((l, i) => {
+              const m = TYPE_META[l.type] || { l: l.type, c: '#8C7A6B', i: 'star' };
+              const mins = Math.floor((l.duration || 0) / 60);
+              const dt = new Date(l.created_at).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+              return (
+                <div key={l.id} className="row" style={{ padding: '12px 14px', borderBottom: i < logs.length-1 ? '1px solid var(--ink-line)' : 'none', gap: 12 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 12, background: m.c+'22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon name={m.i} size={18} color={m.c}/>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.content_title}</div>
+                    <div className="small">{dt} · {mins > 0 ? fmtMins(mins) : '<1 mnt'}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
+
+      {!loading && logs.length === 0 && (
+        <div className="wrap" style={{ marginTop: 24, textAlign: 'center' }}>
+          <Mascot size={70} mood="wink"/>
+          <div className="h3" style={{ marginTop: 8 }}>Belum ada aktivitas</div>
+          <div className="small">Ajak {child ? child.name : 'anak'} mulai membaca hari ini!</div>
+        </div>
+      )}
 
       <div className="wrap" style={{ marginTop: 14 }}>
         <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Kontrol</div>
         <div className="card" style={{ padding: 4 }}>
           {[
             { l: 'Batas waktu harian', v: '2 jam', i: 'flame' },
-            { l: 'Konten yang diizinkan', v: 'Usia 6–8', i: 'shield' },
+            { l: 'Konten yang diizinkan', v: child ? `Usia ${child.age_group}` : '—', i: 'shield' },
             { l: 'Mode tidur', v: 'Auto-stop 2 ep', i: 'moon' },
             { l: 'Ubah PIN', v: '••••', i: 'settings' },
           ].map((r, i, arr) => (

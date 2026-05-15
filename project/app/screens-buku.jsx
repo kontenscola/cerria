@@ -152,7 +152,7 @@ const BukuDetail = ({ bookId, go }) => {
 };
 
 // Reader — with word-level audio highlight
-const Reader = ({ bookId, mode = 'read', go }) => {
+const Reader = ({ bookId, mode = 'read', go, child }) => {
   const { BOOKS, READER_TEXT } = window.CERRIA_DATA;
   const book = BOOKS.find(b => b.id === bookId) || BOOKS[0];
   const [tab, setTab] = useState(mode);            // 'read' | 'listen'
@@ -161,7 +161,26 @@ const Reader = ({ bookId, mode = 'read', go }) => {
   const [showHelp, setShowHelp] = useState(false);
   const rafRef = useRef(0);
   const startedRef = useRef(0);
+  const sessionStartRef = useRef(Date.now());
   const total = 12000;
+
+  const saveAndExit = async (dest, params) => {
+    if (child) {
+      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+      const progress = Math.min(1, time / total);
+      await window.CerriaDB.saveReadingProgress({
+        childId: child.id, bookId: book.id,
+        currentChapter: book.currentChapter || 1, progress, timeSpent: elapsed,
+      });
+      if (elapsed > 5) {
+        await window.CerriaDB.logActivity({
+          childId: child.id, type: 'book',
+          contentId: book.id, contentTitle: book.title, duration: elapsed,
+        });
+      }
+    }
+    go(dest, params);
+  };
 
   useEffect(() => {
     if (!playing) return;
@@ -201,7 +220,7 @@ const Reader = ({ bookId, mode = 'read', go }) => {
 
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div className="topbar">
-          <button onClick={()=>go('detail',{ bookId: book.id })} className="btn-icon-round" style={tab==='listen'?{background:'rgba(255,255,255,.18)',color:'#fff',backdropFilter:'blur(8px)'}:{}}>
+          <button onClick={()=>saveAndExit('detail',{ bookId: book.id })} className="btn-icon-round" style={tab==='listen'?{background:'rgba(255,255,255,.18)',color:'#fff',backdropFilter:'blur(8px)'}:{}}>
             <Icon name="arrow-left" size={20}/>
           </button>
           <div className="h3" style={{ color: 'inherit' }}>{book.title}</div>
