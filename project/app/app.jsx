@@ -120,13 +120,14 @@ const NavGrid = ({ go, route }) => (
       ['home','Beranda'],['buku','Buku'],['detail','Detail'],['reader','Reader'],
       ['modul','Modul'],['peta','Peta Level'],['misi','Misi'],
       ['video','Video'],['player','Player'],
-      ['lagu','Lagu'],['worksheet','Worksheet'],
-      ['majalah','Majalah'],['profil','Profil'],
-      ['notifikasi','Notif'],['parent-pin','Parent PIN'],
-      ['parent-dash','Parent Dash'],['report','Laporan'],
+      ['lagu','Lagu'],['lagu-player','Lagu Player'],
+      ['worksheet','Worksheet'],['worksheet-viewer','WS Viewer'],
+      ['majalah','Majalah'],['artikel','Artikel'],
+      ['profil','Profil'],['notifikasi','Notif'],
+      ['parent-pin','Parent PIN'],['parent-dash','Parent Dash'],['report','Laporan'],
     ].map(([id,label]) => (
       <button key={id} onClick={() => {
-        const p = id==='detail'?{bookId:'b1'}:id==='reader'?{bookId:'b1'}:id==='peta'?{subjectId:'mat'}:id==='player'?{epId:'v1'}:id==='artikel'?{articleId:'a1'}:{};
+        const p = id==='detail'?{bookId:'b1'}:id==='reader'?{bookId:'b1'}:id==='peta'?{subjectId:'mat'}:id==='player'?{epId:'v1'}:id==='artikel'?{articleId:'a1'}:id==='lagu-player'?{songId:'s1'}:id==='worksheet-viewer'?{wsId:'w1'}:{};
         go(id, p);
       }} style={{ padding:'8px 10px', fontSize:11, borderRadius:8, background: route===id?'#FF7A3A':'rgba(255,255,255,.10)', color: route===id?'#fff':'inherit', fontWeight:700, fontFamily:'inherit', border:'1px solid rgba(255,255,255,.10)', cursor:'pointer' }}>{label}</button>
     ))}
