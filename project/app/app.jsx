@@ -256,10 +256,6 @@ function App() {
             : inner
           }
         </div>
-        {/* Sidebar */}
-        <div style={{ flexShrink:0, flexGrow:0, width:320 }}>
-          <DesktopSidebar go={go}/>
-        </div>
       </div>
       <TweaksPanel title="Tweaks">
         <TweakSection label="Tema">
