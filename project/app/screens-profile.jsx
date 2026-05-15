@@ -79,11 +79,11 @@ const AVATAR_COLORS = [
   ['#FF8C9A','#E84A6A'],
 ];
 
-const ProfileScreen = ({ go }) => {
-  const [avatarIdx, setAvatarIdx] = uSP(0);
-  const [name, setName] = uSP('Tessa');
+const ProfileScreen = ({ go, child }) => {
+  const [avatarIdx, setAvatarIdx] = uSP(child ? child.avatar_idx : 0);
+  const [name, setName] = uSP(child ? child.name : 'Anak');
   const [editName, setEditName] = uSP(false);
-  const [nameVal, setNameVal] = uSP('Tessa');
+  const [nameVal, setNameVal] = uSP(child ? child.name : 'Anak');
   const [activeTab, setActiveTab] = uSP('prestasi');
 
   const [c1, c2] = AVATAR_COLORS[avatarIdx];
@@ -152,7 +152,7 @@ const ProfileScreen = ({ go }) => {
               </div>
             </button>
           )}
-          <div className="small" style={{ marginTop: 2, color: 'var(--ink-2)' }}>Usia 6–8 tahun • Full Akses</div>
+          <div className="small" style={{ marginTop: 2, color: 'var(--ink-2)' }}>{child ? `Usia ${child.age_group} tahun` : ''} • Full Akses</div>
 
           {/* Stats row */}
           <div className="row" style={{ gap: 16, marginTop: 14 }}>
@@ -281,7 +281,7 @@ const ProfileScreen = ({ go }) => {
 
       {/* Logout */}
       <div style={{ padding: '8px 18px 0' }}>
-        <button onClick={() => go('login')} style={{
+        <button onClick={() => window.CerriaDB.signOut()} style={{
           width: '100%', height: 52, borderRadius: 999,
           background: '#FFF0EE', border: '2px solid #FFD0CC',
           color: '#D93025', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15,

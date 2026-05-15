@@ -36,6 +36,7 @@ const SCREENS = [
   { id: 'login',             tab: null     },
   { id: 'register',          tab: null     },
   { id: 'paket',             tab: null     },
+  { id: 'add-child',         tab: null     },
 ];
 
 const PRIMARY_HUES = {
@@ -116,7 +117,7 @@ const DesktopSidebar = ({ go }) => (
 const NavGrid = ({ go, route }) => (
   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
     {[
-      ['login','Login'],['register','Register'],['paket','Paket'],
+      ['login','Login'],['register','Register'],['paket','Paket'],['add-child','Tambah Anak'],
       ['home','Beranda'],['buku','Buku'],['detail','Detail'],['reader','Reader'],
       ['modul','Modul'],['peta','Peta Level'],['misi','Misi'],
       ['video','Video'],['player','Player'],
@@ -138,19 +139,31 @@ const NavGrid = ({ go, route }) => (
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [route, setRoute] = React.useState({ id: 'login', params: {} });
-  const [session, setSession] = React.useState(undefined); // undefined = loading
+  const [session, setSession] = React.useState(undefined);
+  const [activeChild, setActiveChild] = React.useState(null);
   const bp = useBreakpoint();
+
+  const afterLogin = async (s) => {
+    const children = await window.CerriaDB.getChildren(s.user.id);
+    if (children.length === 0) {
+      setRoute({ id: 'add-child', params: {} });
+    } else {
+      setActiveChild(children[0]);
+      setRoute({ id: 'home', params: {} });
+    }
+  };
 
   // Auth state listener
   React.useEffect(() => {
     window.CerriaDB.getSession().then(s => {
       setSession(s);
-      if (s) setRoute({ id: 'home', params: {} });
+      if (s) afterLogin(s);
+      else setSession(null);
     });
     const sub = window.CerriaDB.onAuthChange(s => {
       setSession(s);
-      if (!s) setRoute({ id: 'login', params: {} });
-      else if (['login','register','paket'].includes(route.id)) setRoute({ id: 'home', params: {} });
+      if (!s) { setActiveChild(null); setRoute({ id: 'login', params: {} }); }
+      else if (['login','register','paket','add-child'].includes(route.id)) afterLogin(s);
     });
     return () => sub.unsubscribe();
   }, []);
@@ -163,11 +176,11 @@ function App() {
 
   // Screens that manage their own full-bleed container
   const isSelfShell = ['reader','peta','misi','player','parent-pin','parent-dash',
-    'login','register','paket','lagu-player'].includes(route.id);
+    'login','register','paket','lagu-player','add-child'].includes(route.id);
 
   // Screens that hide the bottom nav
   const hideNav = ['reader','peta','misi','player','parent-pin','parent-dash',
-    'report','login','register','paket','lagu-player','worksheet-viewer','notifikasi'].includes(route.id);
+    'report','login','register','paket','lagu-player','worksheet-viewer','notifikasi','add-child'].includes(route.id);
 
   const currentTab = (SCREENS.find(s => s.id === route.id) || {}).tab;
   const hasFrame = bp === 'desktop' && t.showFrame;
@@ -204,7 +217,8 @@ function App() {
     case 'lagu-player':      screen = <window.LaguPlayer go={go} songId={route.params.songId}/>; break;
     case 'worksheet':        screen = <window.WorksheetLibrary go={go}/>; break;
     case 'worksheet-viewer': screen = <window.WorksheetViewer go={go} wsId={route.params.wsId}/>; break;
-    case 'profil':           screen = <window.ProfileScreen go={go}/>; break;
+    case 'profil':           screen = <window.ProfileScreen go={go} child={activeChild}/>; break;
+    case 'add-child':        screen = <window.AddChild go={go} session={session} onCreated={c => { setActiveChild(c); go('home'); }}/>; break;
     case 'notifikasi':       screen = <window.NotifikasiScreen go={go}/>; break;
     case 'majalah':          screen = <window.MajalahScreen go={go}/>; break;
     case 'artikel':          screen = <window.ArticleDetail go={go} articleId={route.params.articleId}/>; break;

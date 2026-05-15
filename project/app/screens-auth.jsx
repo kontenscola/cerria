@@ -386,6 +386,87 @@ const Paket = ({ go }) => {
   );
 };
 
+// ── AddChild ─────────────────────────────────────────────────
+const AVATAR_COLS = [
+  ['#FFD17A','#FF8C42'],
+  ['#6FD296','#3BB273'],
+  ['#7BC8E8','#4EA8DE'],
+  ['#C28BD9','#9B59B6'],
+  ['#FF8C9A','#E84A6A'],
+];
+
+const AddChild = ({ go, session, onCreated }) => {
+  const [name, setName] = uS5('');
+  const [age, setAge] = uS5('');
+  const [avatarIdx, setAvatarIdx] = uS5(0);
+  const [loading, setLoading] = uS5(false);
+  const [err, setErr] = uS5('');
+
+  const doCreate = async () => {
+    if (!name.trim()) { setErr('Nama anak wajib diisi.'); return; }
+    if (!age) { setErr('Pilih kelompok usia.'); return; }
+    setLoading(true); setErr('');
+    const { data, error } = await window.CerriaDB.createChild({
+      parentId: session.user.id, name: name.trim(), ageGroup: age, avatarIdx,
+    });
+    setLoading(false);
+    if (error) { setErr(error.message); return; }
+    onCreated(data);
+  };
+
+  const [c1, c2] = AVATAR_COLS[avatarIdx];
+
+  return (
+    <div className="app" style={{ background: '#FAF5E9', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <BubbleBg/>
+      <div style={{ position: 'relative', zIndex: 3, width: '100%', padding: '0 28px', boxSizing: 'border-box' }}>
+        {/* Avatar preview */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+          <div style={{ width: 100, height: 100, borderRadius: 999, background: `linear-gradient(135deg,${c1},${c2})`, border: '4px solid #fff', boxShadow: '0 8px 24px rgba(180,90,40,.22)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Mascot size={84}/>
+          </div>
+        </div>
+
+        {/* Avatar color picker */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 28 }}>
+          {AVATAR_COLS.map(([a], i) => (
+            <button key={i} onClick={() => setAvatarIdx(i)} style={{
+              width: avatarIdx === i ? 32 : 24, height: avatarIdx === i ? 32 : 24,
+              borderRadius: 999, background: a,
+              border: avatarIdx === i ? '3px solid #fff' : 'none',
+              boxShadow: avatarIdx === i ? '0 2px 8px rgba(0,0,0,.2)' : '0 1px 4px rgba(0,0,0,.15)',
+              transition: 'all .15s', cursor: 'pointer',
+            }}/>
+          ))}
+        </div>
+
+        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 26, color: '#2A1F10', marginBottom: 4 }}>Profil Anak</div>
+        <div style={{ color: '#8C7A5A', fontSize: 14, fontWeight: 600, marginBottom: 20 }}>Siapa yang akan belajar bersama Cerria?</div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <PillInput value={name} onChange={e => setName(e.target.value)} placeholder="Nama anak"/>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {[['3-5','3–5 thn'],['6-8','6–8 thn'],['9-12','9–12 thn']].map(([id, l]) => (
+              <button key={id} onClick={() => setAge(id)} style={{
+                flex: 1, height: 44, borderRadius: 999,
+                background: age === id ? '#F5B429' : '#fff',
+                color: age === id ? '#4A3510' : '#A89070',
+                border: `2px solid ${age === id ? '#F5B429' : 'rgba(74,53,16,.12)'}`,
+                fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+              }}>{l}</button>
+            ))}
+          </div>
+          {err && <div style={{ color: '#E84A4A', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-display)', textAlign: 'center' }}>{err}</div>}
+          <div style={{ marginTop: 4 }}>
+            <CTAPill label={loading ? 'Menyimpan...' : 'Mulai Belajar! →'} onClick={doCreate}/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 window.Login    = Login;
 window.Register = Register;
 window.Paket    = Paket;
+window.AddChild = AddChild;
