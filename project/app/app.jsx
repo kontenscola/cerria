@@ -9,7 +9,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "background": "peach",
   "showStreak": true,
   "density": "cozy",
-  "showFrame": true
+  "showFrame": false
 }/*EDITMODE-END*/;
 
 const SCREENS = [
