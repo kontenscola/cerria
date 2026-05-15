@@ -116,23 +116,32 @@ const CTAPill = ({ label, onClick, bg = '#F5B429', color = '#4A3510' }) => (
 
 // ── Login ───────────────────────────────────────────────────
 const Login = ({ go }) => {
-  const [mode, setMode] = uS5('main'); // 'main' | 'form'
-  const [u, setU] = uS5('');
-  const [p, setP] = uS5('');
+  const [mode, setMode] = uS5('main');
+  const [email, setEmail] = uS5('');
+  const [pw, setPw] = uS5('');
+  const [loading, setLoading] = uS5(false);
+  const [err, setErr] = uS5('');
+
+  const doLogin = async () => {
+    if (!email || !pw) { setErr('Email dan kata sandi wajib diisi.'); return; }
+    setLoading(true); setErr('');
+    const { error } = await window.CerriaDB.signIn({ email, password: pw });
+    setLoading(false);
+    if (error) setErr(error.message === 'Invalid login credentials' ? 'Email atau kata sandi salah.' : error.message);
+    // on success, auth listener in app.jsx will redirect to home
+  };
 
   if (mode === 'form') {
     return (
       <AuthPage topPad={220}>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 28, color: '#2A1F10', marginBottom: 6 }}>Masuk dengan Username</div>
-        <div style={{ color: '#8C7A5A', fontSize: 14, fontWeight: 600, marginBottom: 24 }}>Gunakan username dan kata sandi kamu.</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 28, color: '#2A1F10', marginBottom: 6 }}>Masuk dengan Email</div>
+        <div style={{ color: '#8C7A5A', fontSize: 14, fontWeight: 600, marginBottom: 24 }}>Gunakan email dan kata sandi kamu.</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <PillInput value={u} onChange={e => setU(e.target.value)} placeholder="Username"/>
-          <PillInput value={p} onChange={e => setP(e.target.value)} placeholder="Kata sandi" type="password"/>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: -4 }}>
-            <button style={{ color: '#E07A20', fontWeight: 800, fontSize: 13, fontFamily: 'var(--font-display)' }}>Lupa sandi?</button>
-          </div>
+          <PillInput value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" type="email"/>
+          <PillInput value={pw} onChange={e => setPw(e.target.value)} placeholder="Kata sandi" type="password"/>
+          {err && <div style={{ color: '#E84A4A', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-display)', textAlign: 'center' }}>{err}</div>}
           <div style={{ marginTop: 4 }}>
-            <CTAPill label="Masuk" onClick={() => go('home')}/>
+            <CTAPill label={loading ? 'Memuat...' : 'Masuk'} onClick={doLogin}/>
           </div>
           <button onClick={() => setMode('main')} style={{ color: '#A89070', fontWeight: 700, fontSize: 14, fontFamily: 'var(--font-display)', marginTop: 4 }}>
             ← Kembali
@@ -159,12 +168,9 @@ const Login = ({ go }) => {
         <Divider/>
         <SocialPill
           icon={<Icon name="menu-dots" size={20} color="#4A3510"/>}
-          label="Masuk dengan Username"
+          label="Masuk dengan Email"
           bg="#F5E4C0" color="#4A3510"
           onClick={() => setMode('form')}/>
-        <div style={{ marginTop: 8 }}>
-          <CTAPill label="Lanjutkan" onClick={() => go('home')}/>
-        </div>
       </div>
       <div style={{ textAlign: 'center', marginTop: 22, fontFamily: 'var(--font-display)', fontSize: 14, color: '#8C7A5A' }}>
         Belum punya akun?{' '}
@@ -184,6 +190,20 @@ const Register = ({ go }) => {
   const [age, setAge] = uS5('');
   const [email, setEmail] = uS5('');
   const [pw, setPw] = uS5('');
+  const [loading, setLoading] = uS5(false);
+  const [err, setErr] = uS5('');
+
+  const doRegister = async () => {
+    if (!name.trim()) { setErr('Nama anak wajib diisi.'); return; }
+    if (!age) { setErr('Pilih kelompok usia.'); return; }
+    if (!email.trim()) { setErr('Email wajib diisi.'); return; }
+    if (pw.length < 6) { setErr('Kata sandi minimal 6 karakter.'); return; }
+    setLoading(true); setErr('');
+    const { error } = await window.CerriaDB.signUp({ email, password: pw, name: name.trim() });
+    setLoading(false);
+    if (error) { setErr(error.message); return; }
+    go('paket');
+  };
 
   const checkVoucher = () => {
     const v = voucher.trim().toUpperCase();
@@ -266,8 +286,9 @@ const Register = ({ go }) => {
             ))}
           </div>
           <PillInput value={email} onChange={e => setEmail(e.target.value)} placeholder="Email orang tua" type="email"/>
-          <PillInput value={pw}    onChange={e => setPw(e.target.value)}    placeholder="Buat kata sandi"  type="password"/>
-          <div style={{ marginTop: 4 }}><CTAPill label="Buat Akun & Pilih Paket" onClick={() => go('paket')}/></div>
+          <PillInput value={pw}    onChange={e => setPw(e.target.value)}    placeholder="Buat kata sandi (min. 6 karakter)"  type="password"/>
+          {err && <div style={{ color: '#E84A4A', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-display)', textAlign: 'center' }}>{err}</div>}
+          <div style={{ marginTop: 4 }}><CTAPill label={loading ? 'Membuat Akun...' : 'Buat Akun & Pilih Paket'} onClick={doRegister}/></div>
           <div style={{ fontSize: 11, color: '#A89070', fontFamily: 'var(--font-display)', textAlign: 'center' }}>
             Dengan mendaftar, kamu menyetujui Syarat & Ketentuan Cerria.
           </div>

@@ -138,7 +138,22 @@ const NavGrid = ({ go, route }) => (
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [route, setRoute] = React.useState({ id: 'login', params: {} });
+  const [session, setSession] = React.useState(undefined); // undefined = loading
   const bp = useBreakpoint();
+
+  // Auth state listener
+  React.useEffect(() => {
+    window.CerriaDB.getSession().then(s => {
+      setSession(s);
+      if (s) setRoute({ id: 'home', params: {} });
+    });
+    const sub = window.CerriaDB.onAuthChange(s => {
+      setSession(s);
+      if (!s) setRoute({ id: 'login', params: {} });
+      else if (['login','register','paket'].includes(route.id)) setRoute({ id: 'home', params: {} });
+    });
+    return () => sub.unsubscribe();
+  }, []);
 
   const go = (id, params = {}) => setRoute({ id, params });
   const setTab = (tab) => {
@@ -163,6 +178,16 @@ function App() {
     document.documentElement.style.setProperty('--c-primary-2', h.c2);
     document.documentElement.style.setProperty('--c-primary-shadow', h.shadow);
   }, [t.primaryHue]);
+
+  // Show splash while checking initial session
+  if (session === undefined) {
+    return (
+      <div className="app" style={{ display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:16, background:'#FAF5E9' }}>
+        <img src="uploads/cerria-fix.png" alt="Cerria" style={{ width:160, filter:'drop-shadow(0 3px 8px rgba(180,90,40,.18))' }}/>
+        <div style={{ fontFamily:'var(--font-display)', fontWeight:700, fontSize:14, color:'#A89070' }}>Memuat...</div>
+      </div>
+    );
+  }
 
   let screen;
   switch (route.id) {
