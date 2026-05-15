@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Cerria — UI Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --orange:  #FF7A3A;
+  --orange2: #FF9D5C;
+  --yellow:  #FFC857;
+  --green:   #3BB273;
+  --blue:    #4EA8DE;
+  --purple:  #9B59B6;
+  --pink:    #FF7A93;
+  --peach:   #FFE3CD;
+  --ink1:    #2A1F18;
+  --ink2:    #5A4A3E;
+  --ink3:    #8C7A6B;
+  --bg:      #FFEDDC;
+  --surface: #FFFFFF;
+  --font-d: 'Baloo 2', sans-serif;
+  --font-b: 'Nunito', sans-serif;
+}
+
+/* ── Print setup ── */
+@page { size: A4 landscape; margin: 0; }
+
+@media print {
+  html, body { width: 297mm; height: 210mm; }
+  .page { page-break-after: always; break-after: page; }
+  .page:last-child { page-break-after: avoid; break-after: avoid; }
+  .no-print { display: none !important; }
+}
+
+body {
+  font-family: var(--font-b);
+  background: #f0e4d4;
+  color: var(--ink1);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ── Page layout ── */
+.page {
+  width: 297mm;
+  height: 210mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 20px 32px;
+  background: linear-gradient(160deg, #FFE3CD 0%, #FFD2BB 100%);
+  position: relative;
+  overflow: hidden;
+}
+.page::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: rgba(255,200,150,.25);
+}
+.page::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: -40px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(255,180,120,.20);
+}
+
+/* ── Phone frame ── */
+.phone {
+  width: 200px;
+  height: 410px;
+  border-radius: 30px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(120,60,20,.22), 0 6px 16px rgba(120,60,20,.12);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  border: 6px solid #1A1A1A;
+}
+.phone-notch {
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 60px; height: 18px;
+  background: #1A1A1A;
+  border-radius: 0 0 12px 12px;
+  z-index: 10;
+}
+.phone-screen {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  font-size: 8px;
+}
+
+/* ── Sidebar label ── */
+.screen-label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  z-index: 1;
+  max-width: 200px;
+}
+.screen-label h2 {
+  font-family: var(--font-d);
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--ink1);
+  line-height: 1.2;
+}
+.screen-label p {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.55;
+  font-weight: 600;
+}
+.feature-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.chip {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: 11px;
+}
+
+/* ── Cover page ── */
+.cover-page {
+  width: 297mm;
+  height: 210mm;
+  background: linear-gradient(160deg, #FFE3CD 0%, #FFB59E 60%, #FFA07A 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.cover-page::before {
+  content:''; position:absolute; top:-80px; right:-80px;
+  width:320px; height:320px; border-radius:50%;
+  background:rgba(255,255,255,.15);
+}
+.cover-page::after {
+  content:''; position:absolute; bottom:-100px; left:-60px;
+  width:280px; height:280px; border-radius:50%;
+  background:rgba(255,255,255,.10);
+}
+.cover-deco {
+  position:absolute; top:40px; right:120px;
+  width:180px; height:180px; border-radius:50%;
+  background:rgba(255,255,255,.18);
+}
+
+/* ── Mini UI components inside phone screens ── */
+.mini-topbar {
+  padding: 22px 10px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mini-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(180deg, #FF9D5C, #FF7A3A);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-family: var(--font-d); font-weight: 800; font-size: 9px;
+}
+.mini-bell {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #fff; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 4px rgba(180,90,40,.12);
+}
+.mini-greeting { font-family: var(--font-d); font-weight: 800; font-size: 9px; line-height: 1.2; color: var(--ink1); }
+.mini-sub { font-size: 6px; color: var(--ink2); font-weight: 600; margin-top: 1px; }
+
+/* Banner */
+.mini-banner {
+  margin: 6px 8px 0;
+  border-radius: 10px;
+  padding: 8px 8px 12px;
+  height: 48px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FF9D5C, #FF6B35);
+}
+.mini-banner-title { color: #fff; font-family: var(--font-d); font-weight: 800; font-size: 7.5px; }
+.mini-banner-sub { color: rgba(255,255,255,.88); font-size: 5.5px; font-weight: 600; margin-top: 1px; }
+.mini-banner-cta {
+  position: absolute; bottom: 5px; left: 8px;
+  background: #fff; color: #FF6B35;
+  padding: 2px 7px; border-radius: 999px;
+  font-family: var(--font-d); font-weight: 800; font-size: 5px;
+}
+.mini-banner-icon {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(255,255,255,.22); display: flex; align-items: center; justify-content: center;
+}
+
+/* Section heading */
+.mini-section-title {
+  padding: 7px 8px 4px;
+  font-family: var(--font-d); font-weight: 800; font-size: 7px; color: var(--ink1);
+}
+
+/* Feature grid */
+.mini-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 4px; padding: 0 8px;
+}
+.mini-grid-item {
+  border-radius: 7px;
+  padding: 5px 4px;
+  display: flex; align-items: center; gap: 4px;
+}
+.mini-grid-icon {
+  width: 18px; height: 18px; border-radius: 5px;
+  background: #fff; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.mini-grid-label { font-family: var(--font-d); font-weight: 800; font-size: 5.5px; line-height: 1.2; }
+.mini-grid-sub { font-size: 4.5px; opacity: .7; }
+
+/* Bottom nav */
+.mini-nav {
+  position: absolute; bottom: 8px; left: 8px; right: 8px;
+  height: 30px; background: #fff; border-radius: 999px;
+  display: flex; align-items: center; justify-content: space-around;
+  box-shadow: 0 4px 12px rgba(180,90,40,.18);
+  padding: 0 4px;
+}
+.mini-nav-item {
+  flex: 1; height: 24px; border-radius: 999px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; font-family: var(--font-d); font-weight: 700; font-size: 4px;
+  color: #A89070;
+}
+.mini-nav-item.act { background: linear-gradient(180deg,#FF9D5C,#FF7A3A); color: #fff; }
+.mini-nav-play {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(180deg,#FF9D5C,#FF7A3A);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 0 #C45A23; flex-shrink: 0;
+}
+
+/* Card */
+.mini-card {
+  margin: 0 8px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(180,90,40,.08);
+  overflow: hidden;
+}
+
+/* Auth screen */
+.auth-screen {
+  background: #FAF5E9; display: flex; flex-direction: column;
+  align-items: center; width: 100%; height: 100%;
+  padding: 0; position: relative; overflow: hidden;
+}
+.auth-bubble {
+  position: absolute; border-radius: 50%;
+}
+.auth-logo {
+  width: 90px; margin-top: 30px; position: relative; z-index: 2;
+}
+.auth-title {
+  font-family: var(--font-d); font-weight: 800; font-size: 8.5px; color: #2A1F10;
+  margin: 8px 0 6px; position: relative; z-index: 2;
+}
+.auth-pill {
+  width: calc(100% - 16px); height: 18px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  font-family: var(--font-d); font-weight: 700; font-size: 6px;
+  position: relative; z-index: 2; margin: 3px 8px 0;
+}
+.auth-divider {
+  display: flex; align-items: center; gap: 4px; width: calc(100% - 16px); margin: 4px 8px;
+  position: relative; z-index: 2;
+}
+.auth-divider-line { flex: 1; height: 1px; background: rgba(74,53,16,.12); }
+.auth-divider-text { font-size: 5.5px; color: #A89070; font-weight: 700; }
+
+/* Book covers */
+.book-cover-sm {
+  border-radius: 5px; overflow: hidden; flex-shrink: 0;
+}
+
+/* Progress */
+.mini-prog-track {
+  height: 3px; background: rgba(42,31,24,.10); border-radius: 999px; overflow: hidden;
+}
+.mini-prog-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#FFC857,#FF7A3A); }
+
+/* Level map nodes */
+.lvl-node-sm {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-d); font-weight: 800; font-size: 9px; color: #fff;
+}
+
+svg-icon { display: inline-flex; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════════ -->
+<div class="cover-page">
+  <div class="cover-deco"></div>
+  <!-- mascot SVG -->
+  <svg width="110" height="110" viewBox="0 0 100 100" style="position:relative;z-index:2;filter:drop-shadow(0 8px 20px rgba(180,90,40,.25))">
+    <g opacity=".9"><path d="M50 6 l4 9 9 1.5 -7 6 2 9.5 -8 -4.6 -8 4.6 2 -9.5 -7 -6 9 -1.5z" fill="#FFC857" stroke="#E89F1A" stroke-width="2" stroke-linejoin="round"/></g>
+    <ellipse cx="36" cy="32" rx="7" ry="14" fill="#FFE3CD" stroke="#3A2A1E" stroke-width="2.4"/>
+    <ellipse cx="64" cy="32" rx="7" ry="14" fill="#FFE3CD" stroke="#3A2A1E" stroke-width="2.4"/>
+    <ellipse cx="36" cy="34" rx="3" ry="9" fill="#FFB7A0"/>
+    <ellipse cx="64" cy="34" rx="3" ry="9" fill="#FFB7A0"/>
+    <ellipse cx="50" cy="58" rx="22" ry="20" fill="#FFF3DE" stroke="#3A2A1E" stroke-width="2.6"/>
+    <ellipse cx="34" cy="64" rx="4" ry="2.4" fill="#FFB59E" opacity=".8"/>
+    <ellipse cx="66" cy="64" rx="4" ry="2.4" fill="#FFB59E" opacity=".8"/>
+    <circle cx="40" cy="56" r="3.2" fill="#2A1F18"/><circle cx="60" cy="56" r="3.2" fill="#2A1F18"/>
+    <circle cx="41.2" cy="55" r="1" fill="#fff"/><circle cx="61.2" cy="55" r="1" fill="#fff"/>
+    <path d="M48 64 q2 1.4 4 0" stroke="#3A2A1E" stroke-width="2" fill="#FF8C9A" stroke-linejoin="round"/>
+    <path d="M50 65 v3" stroke="#3A2A1E" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M46 68 q4 4 8 0" stroke="#3A2A1E" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>
+  <img src="uploads/cerria-fix.png" alt="Cerria" style="width:180px;filter:drop-shadow(0 4px 12px rgba(180,90,40,.20));position:relative;z-index:2;margin-top:-8px"/>
+  <div style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:20px;color:rgba(42,31,24,.65);position:relative;z-index:2;margin-top:4px;letter-spacing:.02em">Aplikasi Literasi Digital untuk Anak Indonesia</div>
+  <div style="display:flex;gap:12px;margin-top:16px;position:relative;z-index:2;">
+    <span class="chip" style="background:#FFE3CD;color:#C44A1E;">📚 Buku Cerita</span>
+    <span class="chip" style="background:#D6EBC9;color:#2F6B4A;">✏️ Modul Belajar</span>
+    <span class="chip" style="background:#CFE7F5;color:#1F5C8A;">🎬 Video Book</span>
+    <span class="chip" style="background:#FFE8F0;color:#C0395B;">🎵 Lagu Anak</span>
+    <span class="chip" style="background:#EDE0F7;color:#5B3A8A;">📝 Worksheet</span>
+  </div>
+  <div style="position:absolute;bottom:16px;font-size:12px;color:rgba(42,31,24,.45);font-family:'Nunito',sans-serif;font-weight:600;z-index:2;">Cerria · UI Design 2026</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE 1 — Login + Home
+══════════════════════════════════════════════ -->
+<div class="page">
+  <!-- Phone 1: Login -->
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen auth-screen">
+      <!-- Bubbles -->
+      <div class="auth-bubble" style="width:44px;height:44px;background:#F9B8C4;opacity:.55;top:8px;left:20px"></div>
+      <div class="auth-bubble" style="width:52px;height:52px;background:#C9B8F0;opacity:.5;top:4px;right:12px"></div>
+      <div class="auth-bubble" style="width:26px;height:26px;background:#A8DFF0;opacity:.55;top:36px;left:70px"></div>
+      <div class="auth-bubble" style="width:56px;height:56px;background:#B4E6A0;opacity:.4;top:52px;left:-10px"></div>
+      <div class="auth-bubble" style="width:32px;height:32px;background:#F9CFA0;opacity:.5;top:44px;right:-6px"></div>
+
+      <img class="auth-logo" src="uploads/cerria-fix.png" alt="Cerria" style="filter:drop-shadow(0 2px 6px rgba(180,90,40,.18))"/>
+      <div class="auth-title">Selamat datang!</div>
+
+      <div class="auth-pill" style="background:#DEEAFF;color:#1A3D8A">
+        <svg width="10" height="10" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2A6BD9"/><path d="M8 9q0-2 4-2t4 2-4 2-4 2 4 2 4-2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        Masuk dengan Scola
+      </div>
+      <div class="auth-pill" style="background:#F5E4C0;color:#4A3510;margin-top:3px">
+        <svg width="10" height="10" viewBox="0 0 24 24"><path fill="#4285F4" d="M22 12.2c0-.7-.06-1.36-.18-2H12v3.79h5.62a4.8 4.8 0 0 1-2.08 3.16v2.62h3.36C20.86 18.04 22 15.4 22 12.2z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.43l-3.36-2.62c-.93.62-2.12 1-3.26 1-2.5 0-4.62-1.69-5.38-3.96H3.16v2.7A10 10 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.62 13.99a6 6 0 0 1 0-3.78V7.51H3.16a10 10 0 0 0 0 8.98l3.46-2.5z"/><path fill="#EA4335" d="M12 6.16c1.47 0 2.78.5 3.82 1.5L18.7 4.8C16.95 3.18 14.7 2.2 12 2.2A10 10 0 0 0 3.16 7.5l3.46 2.7C7.38 7.85 9.5 6.16 12 6.16z"/></svg>
+        Masuk dengan Google
+      </div>
+      <div class="auth-divider">
+        <div class="auth-divider-line"></div>
+        <div class="auth-divider-text">atau</div>
+        <div class="auth-divider-line"></div>
+      </div>
+      <div class="auth-pill" style="background:#F5E4C0;color:#4A3510">Masuk dengan Username</div>
+      <div class="auth-pill" style="background:#F5B429;color:#4A3510;margin-top:4px;font-size:7px;font-weight:800;box-shadow:0 3px 0 rgba(180,100,0,.22)">Lanjutkan</div>
+      <div style="font-size:5.5px;color:#8C7A5A;margin-top:8px;position:relative;z-index:2;text-align:center">Belum punya akun? <span style="color:#E07A20;font-weight:800">Daftar</span></div>
+    </div>
+  </div>
+
+  <!-- Label 1 -->
+  <div class="screen-label">
+    <div>
+      <div style="font-family:var(--font-d);font-weight:800;font-size:11px;color:var(--orange);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">01 — Login</div>
+      <h2>Masuk dengan mudah</h2>
+      <p style="margin-top:6px">Login via Scola, Google, atau username & password. Mendukung ekosistem sekolah Indonesia.</p>
+    </div>
+    <div class="feature-chips">
+      <span class="chip" style="background:#DEEAFF;color:#1A3D8A">Scola SSO</span>
+      <span class="chip" style="background:#FFE3CD;color:#C44A1E">Google Auth</span>
+      <span class="chip" style="background:#D6EBC9;color:#2F6B4A">Voucher</span>
+    </div>
+  </div>
+
+  <!-- Phone 2: Home -->
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:var(--bg)">
+      <!-- TopBar -->
+      <div class="mini-topbar">
+        <div>
+          <div class="mini-greeting">Hai, Bunda! 👋</div>
+          <div class="mini-sub">Pilihkan untuk Tessa hari ini</div>
+        </div>
+        <div style="display:flex;gap:4px">
+          <div class="mini-bell"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF8C42" stroke-width="2.5"><path d="M12 2C8 2 5 5.5 5 9v5l-2 3h18l-2-3V9c0-3.5-3-7-7-7z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></div>
+          <div class="mini-avatar">T</div>
+        </div>
+      </div>
+      <!-- Banner -->
+      <div class="mini-banner">
+        <div class="mini-banner-title">Buku Baru Tiba! 🎉</div>
+        <div class="mini-banner-sub">"Misteri Pulau Naga" siap dibaca</div>
+        <div class="mini-banner-cta">Baca →</div>
+        <div class="mini-banner-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>
+        </div>
+        <!-- dots -->
+        <div style="position:absolute;bottom:3px;right:50%;transform:translateX(50%);display:flex;gap:2px">
+          <div style="width:8px;height:3px;border-radius:999px;background:#fff"></div>
+          <div style="width:3px;height:3px;border-radius:999px;background:rgba(255,255,255,.5)"></div>
+          <div style="width:3px;height:3px;border-radius:999px;background:rgba(255,255,255,.5)"></div>
+        </div>
+      </div>
+      <!-- Feature chips row -->
+      <div style="padding:5px 8px 0;overflow:hidden;display:flex;gap:3px">
+        <div style="background:#FFE3CD;border-radius:7px;padding:4px 5px;flex-shrink:0;text-align:center;width:36px">
+          <div style="width:14px;height:14px;border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 2px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C44A1E" stroke-width="2.5"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg></div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:#C44A1E">Buku</div>
+        </div>
+        <div style="background:#D6EBC9;border-radius:7px;padding:4px 5px;flex-shrink:0;text-align:center;width:36px">
+          <div style="width:14px;height:14px;border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 2px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#2F6B4A" stroke-width="2.5"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg></div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:#2F6B4A">Modul</div>
+        </div>
+        <div style="background:#CFE7F5;border-radius:7px;padding:4px 5px;flex-shrink:0;text-align:center;width:36px;border:2px solid var(--orange)">
+          <div style="width:14px;height:14px;border-radius:4px;background:#CFE7F5;display:flex;align-items:center;justify-content:center;margin:0 auto 2px"><svg width="9" height="9" viewBox="0 0 24 24" fill="#1F5C8A" stroke="none"><path d="M7 4.5v15a1 1 0 0 0 1.55.83l11-7.5a1 1 0 0 0 0-1.66l-11-7.5A1 1 0 0 0 7 4.5z"/></svg></div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:#1F5C8A">Video</div>
+        </div>
+        <div style="background:#FFE8F0;border-radius:7px;padding:4px 5px;flex-shrink:0;text-align:center;width:36px">
+          <div style="width:14px;height:14px;border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 2px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C0395B" stroke-width="2.5"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a4 4 0 0 1 0 7"/></svg></div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:#C0395B">Lagu</div>
+        </div>
+        <div style="background:#EDE0F7;border-radius:7px;padding:4px 5px;flex-shrink:0;text-align:center;width:36px">
+          <div style="width:14px;height:14px;border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 2px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#5B3A8A" stroke-width="2.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 12h4"/><path d="M13 12h4"/><path d="M7 16h10"/></svg></div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:#5B3A8A">Sheet</div>
+        </div>
+      </div>
+      <!-- Continue card -->
+      <div class="mini-section-title" style="margin-top:4px">▶ Lanjut Membaca</div>
+      <div class="mini-card" style="padding:7px;display:flex;gap:6px;align-items:center;margin:0 8px">
+        <svg width="30" height="40" viewBox="0 0 120 160" style="border-radius:4px;flex-shrink:0"><defs><linearGradient id="p1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C44A2C"/><stop offset="100%" stop-color="#FF8C42"/></linearGradient></defs><rect width="120" height="160" rx="10" fill="url(#p1)"/><circle cx="92" cy="38" r="14" fill="#FFC857" opacity=".9"/><path d="M0 110 L24 80 L48 100 L72 70 L96 96 L120 86 L120 160 L0 160 Z" fill="#C44A2C" opacity=".6"/><rect x="10" y="124" width="100" height="28" rx="6" fill="#FFF3DE" opacity=".9"/><text x="60" y="142" text-anchor="middle" font-family="Baloo 2" font-size="10" font-weight="800" fill="#3A2A1E">Pulau Misterius</text></svg>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-d);font-weight:800;font-size:6.5px;color:var(--ink1)">Pulau Misterius</div>
+          <div style="font-size:5px;color:var(--ink3);margin-top:1px">71% selesai · Bab 8 dari 12</div>
+          <div class="mini-prog-track" style="margin-top:3px"><div class="mini-prog-fill" style="width:71%"></div></div>
+        </div>
+        <div style="width:16px;height:16px;border-radius:999px;background:linear-gradient(180deg,#FF9D5C,#FF7A3A);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #C45A23;flex-shrink:0"><svg width="7" height="7" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M7 4.5v15a1 1 0 0 0 1.55.83l11-7.5a1 1 0 0 0 0-1.66l-11-7.5A1 1 0 0 0 7 4.5z"/></svg></div>
+      </div>
+      <!-- Bottom nav -->
+      <div class="mini-nav">
+        <div class="mini-nav-item act">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+          Beranda
+        </div>
+        <div class="mini-nav-item">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#A89070" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          Jelajahi
+        </div>
+        <div class="mini-nav-play">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M7 4.5v15a1 1 0 0 0 1.55.83l11-7.5a1 1 0 0 0 0-1.66l-11-7.5A1 1 0 0 0 7 4.5z"/></svg>
+        </div>
+        <div class="mini-nav-item">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#A89070" stroke-width="2.5"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2z"/></svg>
+          Belajar
+        </div>
+        <div class="mini-nav-item">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="#A89070" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg>
+          Profil
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Label 2 -->
+  <div class="screen-label">
+    <div>
+      <div style="font-family:var(--font-d);font-weight:800;font-size:11px;color:var(--orange);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">02 — Beranda</div>
+      <h2>Semua fitur dalam satu layar</h2>
+      <p style="margin-top:6px">Banner promosi otomatis, chip fitur horizontal, kartu "Lanjut Membaca", dan rekomendasi personal.</p>
+    </div>
+    <div class="feature-chips">
+      <span class="chip" style="background:#FFE3CD;color:#C44A1E">Auto-banner</span>
+      <span class="chip" style="background:#D6EBC9;color:#2F6B4A">Rekomendasi</span>
+      <span class="chip" style="background:#CFE7F5;color:#1F5C8A">Progress</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE 2 — Buku Library + Modul Belajar
+══════════════════════════════════════════════ -->
+<div class="page">
+  <!-- Phone 3: Buku Library -->
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:var(--bg)">
+      <div class="mini-topbar">
+        <div>
+          <div class="mini-greeting" style="font-size:9.5px">Perpustakaan</div>
+          <div class="mini-sub">Pilih buku favoritmu hari ini.</div>
+        </div>
+        <div class="mini-avatar">T</div>
+      </div>
+      <!-- Search -->
+      <div style="margin:4px 8px;background:#fff;border-radius:999px;padding:4px 8px;display:flex;align-items:center;gap:4px;box-shadow:0 1px 4px rgba(180,90,40,.08)">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#8C7A6B" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span style="font-size:5.5px;color:#C4B49A">Cari buku...</span>
+      </div>
+      <!-- Segment -->
+      <div style="margin:4px 8px;background:#fff;border-radius:999px;padding:2px;display:flex;gap:2px;box-shadow:0 1px 3px rgba(180,90,40,.08)">
+        <div style="flex:1;border-radius:999px;background:linear-gradient(180deg,#FFD17A,#FFB347);padding:3px 0;text-align:center;font-family:var(--font-d);font-weight:800;font-size:5px;color:#4A2E0E">Semua</div>
+        <div style="flex:1;border-radius:999px;padding:3px 0;text-align:center;font-size:5px;color:#A89070;font-weight:700">3–5</div>
+        <div style="flex:1;border-radius:999px;padding:3px 0;text-align:center;font-size:5px;color:#A89070;font-weight:700">6–8</div>
+        <div style="flex:1;border-radius:999px;padding:3px 0;text-align:center;font-size:5px;color:#A89070;font-weight:700">9–12</div>
+      </div>
+      <!-- Book grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px 8px">
+        <!-- Book cards -->
+        <div style="background:#fff;border-radius:7px;padding:5px;box-shadow:0 1px 4px rgba(180,90,40,.08)">
+          <svg width="100%" height="60" viewBox="0 0 120 160" style="border-radius:4px;display:block"><defs><linearGradient id="s1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C44A2C"/><stop offset="100%" stop-color="#FF8C42"/></linearGradient></defs><rect width="120" height="160" rx="6" fill="url(#s1)"/><circle cx="92" cy="38" r="14" fill="#FFC857" opacity=".9"/><path d="M0 110 L24 80 L48 100 L72 70 L96 96 L120 86 L120 160 L0 160 Z" fill="#C44A2C" opacity=".6"/><rect x="8" y="124" width="104" height="28" rx="6" fill="#FFF3DE" opacity=".9"/><text x="60" y="142" text-anchor="middle" font-family="Baloo 2" font-size="11" font-weight="800" fill="#3A2A1E">Pulau Misterius</text></svg>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:6px;margin-top:3px">Pulau Misterius</div>
+          <div style="font-size:4.5px;color:#8C7A6B">Jessinia N.</div>
+          <div style="display:flex;justify-content:space-between;margin-top:2px;align-items:center">
+            <span style="background:#FFE3CD;color:#C44A1E;padding:1.5px 5px;border-radius:999px;font-size:4px;font-weight:700">6-8 thn</span>
+            <span style="font-size:5px;color:var(--orange);font-weight:800">71%</span>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:7px;padding:5px;box-shadow:0 1px 4px rgba(180,90,40,.08)">
+          <svg width="100%" height="60" viewBox="0 0 120 160" style="border-radius:4px;display:block"><defs><linearGradient id="s2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2F6B4A"/><stop offset="100%" stop-color="#6FBE8F"/></linearGradient></defs><rect width="120" height="160" rx="6" fill="url(#s2)"/><circle cx="92" cy="38" r="14" fill="#FFC857" opacity=".9"/><path d="M0 110 L24 80 L48 100 L72 70 L96 96 L120 86 L120 160 L0 160 Z" fill="#2F6B4A" opacity=".7"/><rect x="8" y="124" width="104" height="28" rx="6" fill="#FFF3DE" opacity=".9"/><text x="60" y="142" text-anchor="middle" font-family="Baloo 2" font-size="11" font-weight="800" fill="#3A2A1E">Hutan Bercerita</text></svg>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:6px;margin-top:3px">Hutan Bercerita</div>
+          <div style="font-size:4.5px;color:#8C7A6B">Pak Doni</div>
+          <div style="display:flex;justify-content:space-between;margin-top:2px;align-items:center">
+            <span style="background:#FFE3CD;color:#C44A1E;padding:1.5px 5px;border-radius:999px;font-size:4px;font-weight:700">6-8 thn</span>
+            <span style="font-size:5px;color:var(--orange);font-weight:800">30%</span>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:7px;padding:5px;box-shadow:0 1px 4px rgba(180,90,40,.08)">
+          <svg width="100%" height="60" viewBox="0 0 120 160" style="border-radius:4px;display:block"><defs><linearGradient id="s3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1B2A4E"/><stop offset="100%" stop-color="#4A6BB0"/></linearGradient></defs><rect width="120" height="160" rx="6" fill="url(#s3)"/><circle cx="92" cy="38" r="14" fill="#FFC857" opacity=".9"/><path d="M0 110 L24 80 L48 100 L72 70 L96 96 L120 86 L120 160 L0 160 Z" fill="#1B2A4E" opacity=".6"/><rect x="8" y="124" width="104" height="28" rx="6" fill="#FFE9C2" opacity=".9"/><text x="60" y="142" text-anchor="middle" font-family="Baloo 2" font-size="10" font-weight="800" fill="#3A2A1E">Sahabat Bintang</text></svg>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:6px;margin-top:3px">Sahabat Bintang</div>
+          <div style="font-size:4.5px;color:#8C7A6B">Bu Ratna</div>
+          <div style="margin-top:2px"><span style="background:#FFE3CD;color:#C44A1E;padding:1.5px 5px;border-radius:999px;font-size:4px;font-weight:700">3-5 thn</span></div>
+        </div>
+        <div style="background:#fff;border-radius:7px;padding:5px;box-shadow:0 1px 4px rgba(180,90,40,.08)">
+          <svg width="100%" height="60" viewBox="0 0 120 160" style="border-radius:4px;display:block"><defs><linearGradient id="s4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5C8A35"/><stop offset="100%" stop-color="#9CCB58"/></linearGradient></defs><rect width="120" height="160" rx="6" fill="url(#s4)"/><circle cx="92" cy="38" r="14" fill="#FFEBA1" opacity=".9"/><path d="M0 110 L24 80 L48 100 L72 70 L96 96 L120 86 L120 160 L0 160 Z" fill="#5C8A35" opacity=".7"/><rect x="8" y="124" width="104" height="28" rx="6" fill="#FFFCE9" opacity=".9"/><text x="60" y="142" text-anchor="middle" font-family="Baloo 2" font-size="10" font-weight="800" fill="#3A2A1E">Kucing Pemberani</text></svg>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:6px;margin-top:3px">Kucing Pemberani</div>
+          <div style="font-size:4.5px;color:#8C7A6B">Kak Iqbal</div>
+          <div style="margin-top:2px"><span style="background:#D6EBC9;color:#2F6B4A;padding:1.5px 5px;border-radius:999px;font-size:4px;font-weight:700">Selesai ✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Label 3 -->
+  <div class="screen-label">
+    <div>
+      <div style="font-family:var(--font-d);font-weight:800;font-size:11px;color:var(--orange);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">03 — Perpustakaan</div>
+      <h2>120+ buku untuk semua usia</h2>
+      <p style="margin-top:6px">Filter berdasarkan usia, genre, dan kata kunci. Cover buku yang kaya warna dan progress tersimpan.</p>
+    </div>
+    <div class="feature-chips">
+      <span class="chip" style="background:#FFE3CD;color:#C44A1E">Filter Usia</span>
+      <span class="chip" style="background:#D6EBC9;color:#2F6B4A">Search</span>
+      <span class="chip" style="background:#EDE0F7;color:#5B3A8A">Progress</span>
+    </div>
+  </div>
+
+  <!-- Phone 4: Modul / Level Map -->
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:linear-gradient(180deg,#C7E5B7 0%,#88BD78 100%);position:relative;overflow:hidden">
+      <!-- sky deco -->
+      <svg width="100%" height="50" viewBox="0 0 200 50" style="position:absolute;top:0;left:0">
+        <ellipse cx="40" cy="20" rx="28" ry="10" fill="#fff" opacity=".4"/>
+        <ellipse cx="160" cy="28" rx="34" ry="12" fill="#fff" opacity=".4"/>
+      </svg>
+      <!-- topbar -->
+      <div class="mini-topbar" style="position:relative;z-index:2">
+        <div style="width:18px;height:18px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08)"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#2A1F18" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></div>
+        <div style="text-align:center">
+          <div class="mini-greeting" style="color:#fff">Matematika</div>
+          <div class="mini-sub" style="color:rgba(255,255,255,.85)">Penjumlahan & Pengurangan</div>
+        </div>
+        <div style="width:18px;height:18px;border-radius:50%;background:#FFC857;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #A87412"><svg width="8" height="8" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg></div>
+      </div>
+      <!-- Level nodes -->
+      <div style="position:relative;padding:8px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;z-index:1">
+        <!-- dashed path -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 200 300" preserveAspectRatio="none">
+          <path d="M100 20 Q130 60 100 90 Q70 120 100 150 Q130 180 100 210 Q70 240 100 270" stroke="#fff" stroke-width="2.5" stroke-dasharray="4 5" fill="none" opacity=".6" stroke-linecap="round"/>
+        </svg>
+        <!-- Node 1: done -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <div class="lvl-node-sm" style="background:linear-gradient(180deg,#6FD296,#3BB273);box-shadow:0 3px 0 #228653"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.2);text-align:center">Mengenal Angka</div>
+          <div style="display:flex;gap:1px">
+            <svg width="6" height="6" viewBox="0 0 24 24" fill="#FFC857" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg>
+            <svg width="6" height="6" viewBox="0 0 24 24" fill="#FFC857" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg>
+            <svg width="6" height="6" viewBox="0 0 24 24" fill="#FFC857" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg>
+          </div>
+        </div>
+        <!-- Node 2: done -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;align-self:flex-end;margin-right:30px">
+          <div class="lvl-node-sm" style="background:linear-gradient(180deg,#6FD296,#3BB273);box-shadow:0 3px 0 #228653"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.2);text-align:center">Menjumlah 1–10</div>
+          <div style="display:flex;gap:1px">
+            <svg width="6" height="6" viewBox="0 0 24 24" fill="#FFC857" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg>
+            <svg width="6" height="6" viewBox="0 0 24 24" fill="#FFC857" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg>
+            <svg width="6" height="6" viewBox="0 0 24 24" fill="rgba(255,255,255,.4)" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg>
+          </div>
+        </div>
+        <!-- Node 3: current -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;align-self:flex-start;margin-left:30px">
+          <div class="lvl-node-sm" style="background:linear-gradient(180deg,#FFD17A,#FF8C42);box-shadow:0 3px 0 #C45A23,0 0 0 4px rgba(255,140,66,.22)">4</div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.2);text-align:center">Mengurangi</div>
+          <div style="background:#fff;color:#C44A1E;padding:2px 6px;border-radius:999px;font-family:var(--font-d);font-weight:800;font-size:4px;box-shadow:0 2px 0 #C45A23">MULAI</div>
+        </div>
+        <!-- Node 4: locked -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;align-self:flex-end;margin-right:30px">
+          <div class="lvl-node-sm" style="background:linear-gradient(180deg,#E0CDB7,#BFA98F);box-shadow:0 3px 0 #8A745B;opacity:.8"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+          <div style="font-family:var(--font-d);font-weight:800;font-size:4.5px;color:rgba(255,255,255,.7);text-align:center">Bil. Genap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Label 4 -->
+  <div class="screen-label">
+    <div>
+      <div style="font-family:var(--font-d);font-weight:800;font-size:11px;color:var(--green);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">04 — Peta Level</div>
+      <h2>Belajar seperti bermain game</h2>
+      <p style="margin-top:6px">Peta level bergaya RPG — unlock satu per satu, raih bintang, hadapi boss level. 4 mata pelajaran.</p>
+    </div>
+    <div class="feature-chips">
+      <span class="chip" style="background:#D6EBC9;color:#2F6B4A">Matematika</span>
+      <span class="chip" style="background:#CFE7F5;color:#1F5C8A">Bahasa</span>
+      <span class="chip" style="background:#FFE8F0;color:#C0395B">Sains</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE 3 — Video Player + Profile
+══════════════════════════════════════════════ -->
+<div class="page">
+  <!-- Phone 5: Video Player -->
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:#0F1B2E;position:relative;overflow:hidden">
+      <!-- Background scene -->
+      <svg width="100%" height="100%" viewBox="0 0 200 410" style="position:absolute;inset:0">
+        <defs>
+          <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFD89B"/><stop offset="100%" stop-color="#FFB36B"/></linearGradient>
+          <linearGradient id="sea2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5BB6E1"/><stop offset="100%" stop-color="#1F5C8A"/></linearGradient>
+        </defs>
+        <rect width="200" height="280" fill="url(#sky2)"/>
+        <circle cx="160" cy="45" r="20" fill="#FFF1B0" opacity=".85"/>
+        <path d="M0 150 q30-40 70-10 q40-30 90-5 q40-25 80-3 v200 H0 z" fill="#3B7A56"/>
+        <path d="M0 200 q50-20 100 0 q50-20 100 0 v210 H0 z" fill="url(#sea2)"/>
+        <!-- Palm -->
+        <g transform="translate(20,100)">
+          <path d="M5 80 q-2-40 8-62" stroke="#5A3520" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M13 22 q-15-8-24 3" stroke="#2F6B4A" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M13 22 q16-6 24 3" stroke="#2F6B4A" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M13 22 q-4-16 4-24" stroke="#2F6B4A" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </g>
+        <!-- Mascot -->
+        <g transform="translate(75,110) scale(0.55)">
+          <g opacity=".9"><path d="M50 6 l4 9 9 1.5 -7 6 2 9.5 -8 -4.6 -8 4.6 2 -9.5 -7 -6 9 -1.5z" fill="#FFC857"/></g>
+          <ellipse cx="36" cy="32" rx="7" ry="14" fill="#FFE3CD" stroke="#3A2A1E" stroke-width="2.4"/>
+          <ellipse cx="64" cy="32" rx="7" ry="14" fill="#FFE3CD" stroke="#3A2A1E" stroke-width="2.4"/>
+          <ellipse cx="50" cy="58" rx="22" ry="20" fill="#FFF3DE" stroke="#3A2A1E" stroke-width="2.6"/>
+          <circle cx="40" cy="56" r="3.2" fill="#2A1F18"/><circle cx="60" cy="56" r="3.2" fill="#2A1F18"/>
+          <path d="M46 68 q4 4 8 0" stroke="#3A2A1E" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </g>
+        <rect y="280" width="200" height="130" fill="rgba(15,27,46,.85)"/>
+      </svg>
+      <!-- Top controls -->
+      <div class="mini-topbar" style="position:relative;z-index:5">
+        <div style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></div>
+        <div class="mini-greeting" style="color:#fff;font-size:7px">Si Kelinci & Sahabat Hutan</div>
+        <div style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 12h4"/><path d="M13 12h4"/><path d="M7 16h10"/></svg></div>
+      </div>
+      <!-- Subtitle -->
+      <div style="position:absolute;bottom:110px;left:8px;right:8px;text-align:center;z-index:5">
+        <div style="display:inline-block;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);padding:4px 8px;border-radius:6px">
+          <span style="color:#fff;font-family:var(--font-d);font-weight:600;font-size:5.5px">"Halo teman-teman, ayo ikut petualangan!"</span>
+        </div>
+      </div>
+      <!-- Player controls -->
+      <div style="position:absolute;bottom:16px;left:8px;right:8px;z-index:5;background:rgba(255,255,255,.12);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="color:#fff;font-size:4.5px;font-weight:700">0:24</span>
+          <span style="color:rgba(255,255,255,.7);font-size:4.5px;font-weight:700">4:32</span>
+        </div>
+        <div style="height:3px;background:rgba(255,255,255,.2);border-radius:999px;overflow:hidden;margin-bottom:6px">
+          <div style="height:100%;width:28%;background:linear-gradient(90deg,#FFC857,#FF7A3A);border-radius:999px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-around;align-items:center">
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M11 5L4 12l7 7v-4l8 4V5L11 9z"/></svg></div>
+          <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(180deg,#FF9D5C,#FF7A3A);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #C45A23"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" stroke="none"><rect x="6" y="4.5" width="4.5" height="15" rx="1.4"/><rect x="13.5" y="4.5" width="4.5" height="15" rx="1.4"/></svg></div>
+          <div style="width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M13 5l7 7-7 7v-4l-8 4V5l8 4z"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Label 5 -->
+  <div class="screen-label">
+    <div>
+      <div style="font-family:var(--font-d);font-weight:800;font-size:11px;color:var(--blue);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">05 — Video Book</div>
+      <h2>Cerita jadi animasi hidup</h2>
+      <p style="margin-top:6px">Video Book dengan background scene imersif, subtitle Bahasa Indonesia, dan auto-next dengan countdown 5 detik.</p>
+    </div>
+    <div class="feature-chips">
+      <span class="chip" style="background:#CFE7F5;color:#1F5C8A">Subtitle</span>
+      <span class="chip" style="background:#EDE0F7;color:#5B3A8A">Auto-next</span>
+      <span class="chip" style="background:#D6EBC9;color:#2F6B4A">Mode Tidur</span>
+    </div>
+  </div>
+
+  <!-- Phone 6: Profile -->
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:var(--bg);overflow:hidden">
+      <!-- Hero -->
+      <div style="height:130px;background:linear-gradient(135deg,#FFE3CD,#FFB59E);position:relative;display:flex;flex-direction:column;align-items:center;padding-top:24px">
+        <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(180deg,#FFD17A,#FF8C42);border:3px solid #fff;box-shadow:0 4px 10px rgba(180,90,40,.2);display:flex;align-items:center;justify-content:center;overflow:hidden">
+          <svg width="42" height="42" viewBox="0 0 100 100">
+            <g opacity=".9"><path d="M50 6 l4 9 9 1.5 -7 6 2 9.5 -8 -4.6 -8 4.6 2 -9.5 -7 -6 9 -1.5z" fill="#FFC857"/></g>
+            <ellipse cx="36" cy="32" rx="7" ry="14" fill="#FFE3CD" stroke="#3A2A1E" stroke-width="2.4"/>
+            <ellipse cx="64" cy="32" rx="7" ry="14" fill="#FFE3CD" stroke="#3A2A1E" stroke-width="2.4"/>
+            <ellipse cx="50" cy="58" rx="22" ry="20" fill="#FFF3DE" stroke="#3A2A1E" stroke-width="2.6"/>
+            <circle cx="40" cy="56" r="3.2" fill="#2A1F18"/><circle cx="60" cy="56" r="3.2" fill="#2A1F18"/>
+            <path d="M46 68 q4 4 8 0" stroke="#3A2A1E" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="font-family:var(--font-d);font-weight:800;font-size:9px;color:var(--ink1);margin-top:4px">Tessa</div>
+        <div style="font-size:5px;color:var(--ink2);font-weight:600">Usia 6–8 tahun · Full Akses</div>
+        <!-- stats -->
+        <div style="display:flex;gap:14px;margin-top:6px">
+          <div style="text-align:center"><div style="font-family:var(--font-d);font-weight:800;font-size:8px">12</div><div style="font-size:4.5px;color:var(--ink2)">Buku</div></div>
+          <div style="text-align:center"><div style="font-family:var(--font-d);font-weight:800;font-size:8px">47</div><div style="font-size:4.5px;color:var(--ink2)">Hari</div></div>
+          <div style="text-align:center"><div style="font-family:var(--font-d);font-weight:800;font-size:8px">7</div><div style="font-size:4.5px;color:var(--ink2)">Misi</div></div>
+          <div style="text-align:center"><div style="font-family:var(--font-d);font-weight:800;font-size:8px">2j</div><div style="font-size:4.5px;color:var(--ink2)">Waktu</div></div>
+        </div>
+      </div>
+      <!-- Tabs -->
+      <div style="display:flex;border-bottom:1px solid rgba(42,31,24,.08);background:#fff">
+        <div style="flex:1;padding:5px 0;text-align:center;font-family:var(--font-d);font-weight:800;font-size:5.5px;color:var(--orange);border-bottom:2px solid var(--orange)">Prestasi</div>
+        <div style="flex:1;padding:5px 0;text-align:center;font-family:var(--font-d);font-weight:800;font-size:5.5px;color:#A89070">Riwayat</div>
+        <div style="flex:1;padding:5px 0;text-align:center;font-family:var(--font-d);font-weight:800;font-size:5.5px;color:#A89070">Paket</div>
+      </div>
+      <!-- Badges -->
+      <div style="padding:6px 8px">
+        <div style="font-family:var(--font-d);font-weight:800;font-size:6px;margin-bottom:5px">Lencana (4/8)</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">
+          <div style="text-align:center">
+            <div style="width:28px;height:28px;border-radius:8px;background:#FFC857;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 3px 0 #A87412"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg></div>
+            <div style="font-size:4px;margin-top:2px;font-weight:700">Bintang</div>
+          </div>
+          <div style="text-align:center">
+            <div style="width:28px;height:28px;border-radius:8px;background:#FF8C42;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 3px 0 #C45A23"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.6L12 17.4 6.1 20.6l1.2-6.6L2.5 9.4l6.6-.9z"/></svg></div>
+            <div style="font-size:4px;margin-top:2px;font-weight:700">Pembaca</div>
+          </div>
+          <div style="text-align:center">
+            <div style="width:28px;height:28px;border-radius:8px;background:#E84A4A;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 3px 0 #A0201A"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M12 2c1.5 3 4 4 4 7a4 4 0 0 1-1.5 3.1A3 3 0 0 0 16 14.5c0 2.5-2 5.5-4 7.5-2-2-4-5-4-7.5a3 3 0 0 0 1.5-2.4A4 4 0 0 1 8 9c0-2 1.5-3.5 4-7z"/></svg></div>
+            <div style="font-size:4px;margin-top:2px;font-weight:700">Api 47 Hari</div>
+          </div>
+          <div style="text-align:center;opacity:.45">
+            <div style="width:28px;height:28px;border-radius:8px;background:#E0CDB7;display:flex;align-items:center;justify-content:center;margin:0 auto"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#BFA98F" stroke-width="2.5"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+            <div style="font-size:4px;margin-top:2px;font-weight:700">Belum</div>
+          </div>
+        </div>
+        <!-- Progress bars -->
+        <div style="margin-top:8px;font-family:var(--font-d);font-weight:800;font-size:6px;margin-bottom:5px">Level per Mapel</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:1.5px"><span style="font-size:5px;font-weight:700">Matematika</span><span style="font-size:5px;font-weight:800;color:#4EA8DE">42%</span></div>
+            <div class="mini-prog-track"><div class="mini-prog-fill" style="width:42%;background:#4EA8DE"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:1.5px"><span style="font-size:5px;font-weight:700">Bahasa Indonesia</span><span style="font-size:5px;font-weight:800;color:var(--orange)">65%</span></div>
+            <div class="mini-prog-track"><div class="mini-prog-fill" style="width:65%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:1.5px"><span style="font-size:5px;font-weight:700">Bahasa Inggris</span><span style="font-size:5px;font-weight:800;color:var(--purple)">20%</span></div>
+            <div class="mini-prog-track"><div class="mini-prog-fill" style="width:20%;background:var(--purple)"></div></div>
+          </div>
+        </div>
+        <!-- Logout -->
+        <div style="margin-top:10px;height:18px;border-radius:999px;background:#FFF0EE;border:1.5px solid #FFD0CC;display:flex;align-items:center;justify-content:center;gap:4px">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#D93025" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span style="font-family:var(--font-d);font-weight:800;font-size:5.5px;color:#D93025">Keluar dari Akun</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Label 6 -->
+  <div class="screen-label">
+    <div>
+      <div style="font-family:var(--font-d);font-weight:800;font-size:11px;color:var(--purple);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">06 — Profil Anak</div>
+      <h2>Pantau progres secara visual</h2>
+      <p style="margin-top:6px">Lencana pencapaian, progress per mapel, riwayat aktivitas, dan manajemen paket langganan.</p>
+    </div>
+    <div class="feature-chips">
+      <span class="chip" style="background:#EDE0F7;color:#5B3A8A">Lencana</span>
+      <span class="chip" style="background:#D6EBC9;color:#2F6B4A">Progress</span>
+      <span class="chip" style="background:#FFE3CD;color:#C44A1E">Paket</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto-print after fonts + render settle
+  document.fonts.ready.then(() => {
+    setTimeout(() => { window.print(); }, 600);
+  });
+</script>
+</body>
+</html>

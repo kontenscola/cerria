@@ -1,0 +1,155 @@
+/* global React */
+// ─────────────────────────────────────────────────────────────
+// Cerria — Parent Mode (PIN gate + dashboard)
+// ─────────────────────────────────────────────────────────────
+
+const { useState: uS4 } = React;
+const PIN = '1234';
+
+const ParentPin = ({ go }) => {
+  const [pin, setPin] = uS4('');
+  const [err, setErr] = uS4(false);
+
+  const press = (n) => {
+    if (err) setErr(false);
+    const next = (pin + n).slice(0, 4);
+    setPin(next);
+    if (next.length === 4) {
+      setTimeout(() => {
+        if (next === PIN) go('parent-dash');
+        else { setErr(true); setTimeout(() => { setPin(''); setErr(false); }, 700); }
+      }, 200);
+    }
+  };
+  const back = () => setPin(p => p.slice(0, -1));
+
+  return (
+    <div className="app" style={{ background: 'linear-gradient(180deg,#5B3A8A 0%,#9B59B6 100%)' }}>
+      <div className="topbar">
+        <button onClick={()=>go('home')} className="btn-icon-round" style={{ background: 'rgba(255,255,255,.18)', color: '#fff' }}><Icon name="arrow-left" size={20}/></button>
+        <div className="h3" style={{ color: '#fff' }}>Mode Orang Tua</div>
+        <div style={{ width: 44 }}/>
+      </div>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
+        <div style={{ width: 80, height: 80, borderRadius: 24, background: 'rgba(255,255,255,.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+          <Icon name="shield" size={40} color="#fff"/>
+        </div>
+        <div className="display" style={{ color: '#fff', fontSize: 24, textAlign: 'center' }}>Masukkan PIN Orang Tua</div>
+        <div className="body" style={{ color: 'rgba(255,255,255,.8)', marginTop: 4, textAlign: 'center' }}>Untuk lihat aktivitas & atur batas waktu.</div>
+
+        <div className="pin-dots" style={{ marginTop: 26 }}>
+          {[0,1,2,3].map(i => (
+            <div key={i} className={`pin-dot ${pin.length > i ? 'filled' : ''} ${err ? 'error' : ''}`} style={err ? { background: '#FF7A93' } : pin.length > i ? { background: '#FFC857', boxShadow: '0 0 0 4px rgba(255,200,87,.25)' } : { background: 'rgba(255,255,255,.25)' }}/>
+          ))}
+        </div>
+        <div className="small" style={{ color: '#FFB0B0', marginTop: 10, height: 16 }}>{err ? 'PIN salah, coba lagi' : ''}</div>
+
+        <div style={{ marginTop: 20, width: '100%', maxWidth: 280 }}>
+          <div className="kbd-pin">
+            {[1,2,3,4,5,6,7,8,9].map(n => (
+              <button key={n} onClick={()=>press(n)}>{n}</button>
+            ))}
+            <button style={{ visibility: 'hidden' }}/>
+            <button onClick={()=>press(0)}>0</button>
+            <button onClick={back} style={{ background: 'rgba(255,255,255,.18)', color: '#fff', boxShadow: 'none' }}><Icon name="arrow-left" size={20} color="#fff"/></button>
+          </div>
+        </div>
+        <div className="small" style={{ color: 'rgba(255,255,255,.6)', marginTop: 16 }}>Tip: gunakan <b>1234</b> untuk demo</div>
+      </div>
+    </div>
+  );
+};
+
+const ParentDash = ({ go }) => {
+  return (
+    <div className="scroll fade-in">
+      <div className="topbar">
+        <button onClick={()=>go('home')} className="btn-icon-round"><Icon name="arrow-left" size={20}/></button>
+        <div className="h3">Dashboard Orang Tua</div>
+        <button onClick={()=>go('report')} className="btn-icon-round" style={{ background: '#FF7A3A', color: '#fff' }}><Icon name="badge" size={18} color="#fff"/></button>
+      </div>
+
+      <div className="wrap" style={{ marginTop: 6 }}>
+        <div className="card-warm" style={{ padding: 16 }}>
+          <div className="small" style={{ color: 'var(--ink-2)', fontWeight: 700 }}>HARI INI — JUMAT, 2 MEI</div>
+          <div className="row" style={{ marginTop: 10, justifyContent: 'space-between' }}>
+            <div>
+              <div className="display" style={{ fontSize: 26 }}>1j 12m</div>
+              <div className="small">Total waktu Tessa</div>
+            </div>
+            <div style={{ width: 80, height: 80, position: 'relative' }}>
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" stroke="rgba(42,31,24,.10)" strokeWidth="8" fill="none"/>
+                <circle cx="40" cy="40" r="32" stroke="#FF8C42" strokeWidth="8" fill="none" strokeLinecap="round" strokeDasharray={`${0.6*201} 201`} transform="rotate(-90 40 40)"/>
+              </svg>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 800 }}>60%</div>
+            </div>
+          </div>
+          <div className="small" style={{ marginTop: 8 }}>Batas harian: 2 jam</div>
+        </div>
+      </div>
+
+      <div className="wrap" style={{ marginTop: 14 }}>
+        <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Pekan Ini</div>
+        <div className="card" style={{ padding: 16 }}>
+          <div className="row" style={{ alignItems: 'flex-end', justifyContent: 'space-between', height: 100 }}>
+            {[40, 70, 55, 85, 60, 30, 0].map((v, i) => (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 18, height: `${v}%`, borderRadius: 6, background: i === 3 ? 'linear-gradient(180deg,#FFC857,#FF8C42)' : '#FFE3CD' }}/>
+                <span className="small" style={{ fontSize: 11 }}>{['S','S','R','K','J','S','M'][i]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="wrap" style={{ marginTop: 14 }}>
+        <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Aktivitas per Fitur</div>
+        <div className="card" style={{ padding: 16 }}>
+          {[
+            { l: 'Buku',          v: '38 mnt', p: 0.55, c: '#FF8C42' },
+            { l: 'Modul Belajar', v: '24 mnt', p: 0.35, c: '#3BB273' },
+            { l: 'Video Book',    v: '10 mnt', p: 0.15, c: '#4EA8DE' },
+            { l: 'Majalah',       v: '0 mnt',  p: 0.0,  c: '#9B59B6' },
+          ].map(r => (
+            <div key={r.l} style={{ marginBottom: 12 }}>
+              <div className="row" style={{ justifyContent: 'space-between', marginBottom: 4 }}>
+                <span style={{ fontWeight: 700, fontSize: 14 }}>{r.l}</span>
+                <span className="small" style={{ fontWeight: 700 }}>{r.v}</span>
+              </div>
+              <div className="progress-track"><div className="progress-fill" style={{ width: `${r.p*100}%`, background: r.c }}/></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="wrap" style={{ marginTop: 14 }}>
+        <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Kontrol</div>
+        <div className="card" style={{ padding: 4 }}>
+          {[
+            { l: 'Batas waktu harian', v: '2 jam', i: 'flame' },
+            { l: 'Konten yang diizinkan', v: 'Usia 6–8', i: 'shield' },
+            { l: 'Mode tidur', v: 'Auto-stop 2 ep', i: 'moon' },
+            { l: 'Ubah PIN', v: '••••', i: 'settings' },
+          ].map((r, i, arr) => (
+            <div key={r.l} className="row" style={{ padding: '14px 14px', justifyContent: 'space-between', borderBottom: i < arr.length-1 ? '1px solid var(--ink-line)' : 'none' }}>
+              <div className="row" style={{ gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 12, background: '#FFE3CD', color: '#C44A1E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon name={r.i} size={18}/></div>
+                <span style={{ fontWeight: 700, fontSize: 14 }}>{r.l}</span>
+              </div>
+              <div className="row" style={{ gap: 6 }}>
+                <span className="small" style={{ fontWeight: 700, color: 'var(--ink-2)' }}>{r.v}</span>
+                <Icon name="arrow-right" size={16} color="#8C7A6B"/>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ height: 40 }}/>
+    </div>
+  );
+};
+
+window.ParentPin = ParentPin;
+window.ParentDash = ParentDash;
