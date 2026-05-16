@@ -96,7 +96,7 @@ const RecoCard = ({ go, child }) => (
       </div>
       {/* Info */}
       <div style={{ padding: '14px 16px 16px' }}>
-        <div style={{ fontSize: 12, color: '#3BB273', fontWeight: 700, marginBottom: 4 }}>✓ Cocok untuk usia 6–8 tahun Tessa</div>
+        <div style={{ fontSize: 12, color: '#3BB273', fontWeight: 700, marginBottom: 4 }}>✓ Cocok untuk usia 6–8 tahun {child ? child.name : ''}</div>
         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 19, color: 'var(--ink-1)', lineHeight: 1.2, marginBottom: 6 }}>Petualangan ke Luar Angkasa</div>
         <div style={{ fontSize: 13, color: '#C47A3A', fontWeight: 600, lineHeight: 1.45, marginBottom: 12 }}>Ikuti Kira menjelajahi planet-planet sambil belajar angka dan warna!</div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

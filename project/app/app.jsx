@@ -334,7 +334,7 @@ function App() {
     <>
       <div style={{ width:'100vw', minHeight:'100vh', display:'flex', flexDirection:'row', flexWrap:'nowrap', alignItems:'center', justifyContent:'center', gap:56, padding:'40px 48px', boxSizing:'border-box', background: BG_GRADIENTS[t.background] || BG_GRADIENTS.peach }}>
         {/* Phone */}
-        <div style={{ flexShrink:0, flexGrow:0, width: t.showFrame ? 'auto' : 390, height: t.showFrame ? 'auto' : 844, overflow: t.showFrame ? 'visible' : 'hidden', borderRadius: t.showFrame ? 0 : 44, boxShadow: t.showFrame ? 'none' : '0 40px 80px rgba(180,90,40,.25)' }}>
+        <div style={{ flexShrink:0, flexGrow:0, width: t.showFrame ? 'auto' : 390, height: t.showFrame ? 'auto' : 844, overflow: t.showFrame ? 'visible' : 'hidden', borderRadius: t.showFrame ? 0 : 44, boxShadow: t.showFrame ? 'none' : '0 40px 80px rgba(180,90,40,.25)', display: t.showFrame ? undefined : 'flex', flexDirection: t.showFrame ? undefined : 'column' }}>
           {t.showFrame
             ? <IOSDevice width={390} height={844} dark={false}>{inner}</IOSDevice>
             : inner
