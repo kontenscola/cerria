@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Cerria — Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:#F5F0EB;color:#2A1F18;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select,textarea{font-family:inherit}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;background:#fff;border-right:1px solid #EDE8E2;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:20;box-shadow:2px 0 12px rgba(180,90,40,.05)}
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:64px;background:#fff;border-bottom:1px solid #EDE8E2;display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(180,90,40,.06)}
+.content{padding:28px;flex:1}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sb-logo{padding:20px 20px 16px;border-bottom:1px solid #EDE8E2;display:flex;align-items:center;gap:10px}
+.sb-logo-text{font-family:'Baloo 2',cursive;font-weight:800;font-size:20px;color:#2A1F18}
+.sb-logo-badge{background:linear-gradient(135deg,#FF9D5C,#FF7A3A);color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px}
+.sb-nav{flex:1;padding:12px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-weight:700;font-size:14px;color:#8C7A6B;cursor:pointer;transition:all .15s;background:transparent;border:none;width:100%;text-align:left}
+.nav-item:hover{background:#FFF5EF;color:#FF7A3A}
+.nav-item.active{background:#FFF5EF;color:#FF7A3A}
+.nav-item .nav-dot{width:8px;height:8px;border-radius:999px;background:currentColor;flex-shrink:0}
+.sb-footer{padding:14px 10px;border-top:1px solid #EDE8E2}
+.user-info{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#FFF5EF}
+.user-avatar{width:34px;height:34px;border-radius:999px;background:linear-gradient(135deg,#FF9D5C,#FF7A3A);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Baloo 2',cursive;font-weight:800;font-size:14px;flex-shrink:0}
+
+/* ── Stats ───────────────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:#fff;border-radius:18px;padding:20px 22px;box-shadow:0 2px 10px rgba(180,90,40,.07)}
+.stat-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:20px}
+.stat-num{font-family:'Baloo 2',cursive;font-weight:800;font-size:34px;line-height:1;color:#2A1F18}
+.stat-label{font-size:13px;font-weight:600;color:#8C7A6B;margin-top:4px}
+
+/* ── Table card ──────────────────────────────────────────────── */
+.table-card{background:#fff;border-radius:18px;box-shadow:0 2px 10px rgba(180,90,40,.07);overflow:hidden}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #EDE8E2;gap:12px}
+.table-title{font-family:'Baloo 2',cursive;font-weight:800;font-size:18px}
+.toolbar-right{display:flex;align-items:center;gap:10px}
+.search-box{height:38px;padding:0 14px 0 36px;border-radius:999px;border:1.5px solid #EDE8E2;font-size:14px;background:#FAFAF8;outline:none;width:220px;transition:border-color .15s;color:#2A1F18}
+.search-box:focus{border-color:#FF7A3A}
+.search-wrap{position:relative}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#8C7A6B;font-size:15px}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;padding:11px 16px;font-size:12px;font-weight:700;color:#8C7A6B;text-transform:uppercase;letter-spacing:.5px;background:#FAFAF8;border-bottom:1px solid #EDE8E2;white-space:nowrap}
+tbody td{padding:13px 16px;font-size:14px;border-bottom:1px solid #EDE8E2;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#FDFCFB}
+.actions{display:flex;gap:6px}
+.empty-state{padding:60px 20px;text-align:center;color:#8C7A6B}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.table-footer{padding:14px 20px;border-top:1px solid #EDE8E2;display:flex;align-items:center;justify-content:space-between}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn{height:38px;padding:0 18px;border-radius:999px;font-family:'Baloo 2',cursive;font-weight:700;font-size:14px;transition:all .15s;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;white-space:nowrap}
+.btn-primary{background:linear-gradient(180deg,#FF9D5C,#FF7A3A);color:#fff;box-shadow:0 3px 0 #C45A23}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 0 #C45A23}
+.btn-primary:active{transform:translateY(1px);box-shadow:0 1px 0 #C45A23}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-secondary{background:#F0E8DE;color:#C44A1E}
+.btn-secondary:hover{background:#FFE3CD}
+.btn-ghost{background:transparent;color:#8C7A6B;border:1.5px solid #EDE8E2}
+.btn-ghost:hover{background:#FAFAF8}
+.btn-icon{width:32px;height:32px;padding:0;border-radius:10px;font-size:16px}
+.btn-edit{background:#EBF5FF;color:#4EA8DE}
+.btn-edit:hover{background:#D4ECFB}
+.btn-del{background:#FFF0EE;color:#E84A4A}
+.btn-del:hover{background:#FFE0DC}
+.btn-sm{height:32px;padding:0 14px;font-size:13px}
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(27,42,78,.5);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:22px;width:100%;max-width:540px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(180,90,40,.2);animation:fadeUp .2s ease}
+.modal-lg{max-width:680px}
+.modal-head{padding:22px 26px;border-bottom:1px solid #EDE8E2;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-head-title{font-family:'Baloo 2',cursive;font-weight:800;font-size:18px}
+.modal-close{width:36px;height:36px;border-radius:999px;background:#F0E8DE;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:#8C7A6B}
+.modal-close:hover{background:#FFE3CD;color:#C44A1E}
+.modal-body{flex:1;overflow-y:auto;padding:22px 26px}
+.modal-foot{padding:16px 26px;border-top:1px solid #EDE8E2;display:flex;gap:10px;justify-content:flex-end;flex-shrink:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Form ────────────────────────────────────────────────────── */
+.field{margin-bottom:18px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+label{display:block;font-size:12px;font-weight:700;color:#8C7A6B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fi,.fs,.ft{width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid #EDE8E2;font-size:14px;color:#2A1F18;background:#FAFAF8;outline:none;transition:border-color .15s}
+.fi:focus,.fs:focus,.ft:focus{border-color:#FF7A3A;background:#fff}
+.ft{resize:vertical;min-height:80px}
+.hint{font-size:12px;color:#8C7A6B;margin-top:5px}
+.radio-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.radio-opt{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;border:1.5px solid #EDE8E2;cursor:pointer;font-weight:700;font-size:13px;transition:all .15s}
+.radio-opt.selected{border-color:#3BB273;background:#D6EBC9;color:#2F6B4A}
+.radio-opt:hover{border-color:#FF7A3A}
+
+/* ── Badges ──────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:700}
+.b-orange{background:#FFE3CD;color:#C44A1E}
+.b-blue{background:#DDEFFA;color:#1F5C8A}
+.b-green{background:#D6EBC9;color:#2F6B4A}
+.b-purple{background:#EDE0F7;color:#5B3A8A}
+.b-pink{background:#FFE3EC;color:#C0395B}
+.b-gray{background:#F0E8DE;color:#8C7A6B}
+
+/* ── Mission accordion ───────────────────────────────────────── */
+.lvl-row{border-bottom:1px solid #EDE8E2;cursor:pointer}
+.lvl-row:last-child{border-bottom:none}
+.lvl-head{display:flex;align-items:center;gap:12px;padding:13px 16px}
+.lvl-head:hover{background:#FDFCFB}
+.lvl-num{width:30px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',cursive;font-weight:800;font-size:13px;color:#fff;flex-shrink:0}
+.lvl-body{background:#FAFAF8;border-top:1px solid #EDE8E2}
+.q-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 10px 58px;border-bottom:1px solid #EDE8E2}
+.q-item{display:flex;align-items:center;gap:10px;padding:10px 16px 10px 58px;border-bottom:1px solid #EDE8E2;font-size:13px}
+.q-item:last-child{border-bottom:none}
+.q-num{width:22px;height:22px;border-radius:999px;background:#FF7A3A22;color:#FF7A3A;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── Login ───────────────────────────────────────────────────── */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFE3CD 0%,#FFD2BB 50%,#FFBE9A 100%)}
+.login-card{background:#fff;border-radius:24px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(180,90,40,.2);animation:fadeUp .3s ease}
+.login-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;gap:8px}
+.login-logo-text{font-family:'Baloo 2',cursive;font-weight:800;font-size:28px}
+.login-subtitle{font-size:14px;color:#8C7A6B;font-weight:600}
+.login-title{font-family:'Baloo 2',cursive;font-weight:800;font-size:22px;margin-bottom:6px}
+.login-desc{font-size:14px;color:#8C7A6B;margin-bottom:24px}
+.login-field{margin-bottom:16px}
+.login-fi{width:100%;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid #EDE8E2;font-size:15px;color:#2A1F18;background:#FAFAF8;outline:none;transition:border-color .15s}
+.login-fi:focus{border-color:#FF7A3A;background:#fff}
+.login-error{background:#FFF0EE;border:1.5px solid #FFD0CC;color:#D93025;padding:10px 14px;border-radius:10px;font-size:14px;font-weight:600;margin-bottom:16px}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{background:#2A1F18;color:#fff;padding:13px 18px;border-radius:14px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:fadeUp .25s ease;min-width:240px}
+.toast.ok{background:#2F6B4A}
+.toast.err{background:#E84A4A}
+
+/* ── Del confirm ─────────────────────────────────────────────── */
+.del-overlay{position:fixed;inset:0;background:rgba(27,42,78,.4);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.del-box{background:#fff;border-radius:20px;padding:32px;text-align:center;max-width:340px;width:100%;box-shadow:0 16px 40px rgba(0,0,0,.15);animation:fadeUp .2s ease}
+
+/* ── Page header ─────────────────────────────────────────────── */
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-family:'Baloo 2',cursive;font-weight:800;font-size:26px}
+.page-sub{font-size:14px;color:#8C7A6B;margin-top:2px}
+.breadcrumb{font-size:13px;color:#8C7A6B;font-weight:600;margin-bottom:6px}
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#EDE8E2;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#C8B89A}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script type="text/babel" src="app/supabase.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ── Toast ─────────────────────────────────────────────────────
+let _toastId = 0;
+let _setToasts = null;
+const toast = (msg, type='ok') => {
+  const id = ++_toastId;
+  _setToasts && _setToasts(t => [...t, { id, msg, type }]);
+  setTimeout(() => _setToasts && _setToasts(t => t.filter(x => x.id !== id)), 3000);
+};
+const ToastLayer = () => {
+  const [toasts, setToasts] = useState([]);
+  _setToasts = setToasts;
+  return (
+    <div className="toast-wrap">
+      {toasts.map(t => (
+        <div key={t.id} className={`toast ${t.type}`}>
+          {t.type==='ok'?'✓':t.type==='err'?'✗':'ℹ'} {t.msg}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ── Modal ─────────────────────────────────────────────────────
+const Modal = ({ title, onClose, onSave, saving, children, lg }) => (
+  <div className="overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+    <div className={`modal${lg?' modal-lg':''}`}>
+      <div className="modal-head">
+        <div className="modal-head-title">{title}</div>
+        <button className="modal-close" onClick={onClose}>×</button>
+      </div>
+      <div className="modal-body">{children}</div>
+      <div className="modal-foot">
+        <button className="btn btn-ghost" onClick={onClose}>Batal</button>
+        <button className="btn btn-primary" onClick={onSave} disabled={saving}>
+          {saving ? 'Menyimpan...' : '✓ Simpan'}
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// ── Delete confirm ────────────────────────────────────────────
+const DelConfirm = ({ label, onConfirm, onCancel }) => (
+  <div className="del-overlay" onClick={e=>e.target===e.currentTarget&&onCancel()}>
+    <div className="del-box">
+      <div style={{fontSize:48,marginBottom:12}}>🗑️</div>
+      <div style={{fontFamily:"'Baloo 2',cursive",fontWeight:800,fontSize:20,marginBottom:6}}>Hapus konten?</div>
+      <div style={{fontSize:14,color:'#8C7A6B',marginBottom:22,lineHeight:1.5}}>"{label}" akan dinonaktifkan dan tidak tampil di app.</div>
+      <div style={{display:'flex',gap:10}}>
+        <button className="btn btn-ghost" style={{flex:1}} onClick={onCancel}>Batal</button>
+        <button className="btn" style={{flex:1,background:'#E84A4A',color:'#fff'}} onClick={onConfirm}>Hapus</button>
+      </div>
+    </div>
+  </div>
+);
+
+// ── Form helpers ──────────────────────────────────────────────
+const F = ({ label, children, hint }) => (
+  <div className="field">
+    <label>{label}</label>
+    {children}
+    {hint && <div className="hint">{hint}</div>}
+  </div>
+);
+
+const SUBJ = [{v:'mat',l:'Matematika'},{v:'bin',l:'Bahasa Indonesia'},{v:'eng',l:'Bahasa Inggris'},{v:'sci',l:'Sains'}];
+const AGES  = [{v:'3-5',l:'3–5 thn'},{v:'6-8',l:'6–8 thn'},{v:'9-12',l:'9–12 thn'}];
+const GENRE = [{v:'petualangan',l:'Petualangan'},{v:'fabel',l:'Fabel'},{v:'edukasi',l:'Edukasi'},{v:'humor',l:'Humor'}];
+const THEME = [{v:'sunset',l:'Sunset'},{v:'forest',l:'Hutan'},{v:'night',l:'Malam'},{v:'meadow',l:'Padang'},{v:'ocean',l:'Laut'},{v:'purple',l:'Ungu'},{v:'island',l:'Pulau'}];
+const WSSUBJ= [{v:'mat',l:'Matematika'},{v:'bin',l:'Bahasa Indonesia'},{v:'sci',l:'Sains'},{v:'art',l:'Seni'}];
+const DIFF  = [{v:'Mudah',l:'Mudah'},{v:'Sedang',l:'Sedang'},{v:'Seru',l:'Seru!'}];
+const PREV  = [{v:'apples',l:'Apel 🍎'},{v:'numbers',l:'Angka 🔢'},{v:'letters',l:'Huruf 📖'},{v:'science',l:'Sains 🔬'},{v:'art',l:'Seni 🎨'}];
+const SCENE = [{v:'apples',l:'Apel'},{v:'numbers',l:'Angka'},{v:'letters',l:'Huruf'}];
+
+const SUBJ_COLOR = {mat:'#4EA8DE',bin:'#FF8C42',eng:'#9B59B6',sci:'#3BB273'};
+const SUBJ_BG    = {mat:'#DDEFFA',bin:'#FFE3CD',eng:'#EDE0F7',sci:'#D6EBC9'};
+const SUBJ_FG    = {mat:'#1F5C8A',bin:'#C44A1E',eng:'#5B3A8A',sci:'#2F6B4A'};
+
+// ═══════════════════════════════════════════════════════════════
+// ── BOOKS PAGE ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+const BOOK_EMPTY = {title:'',author:'',theme:'sunset',age:'6-8',genre:'petualangan',chapters:6,summary:''};
+const BookForm = ({f,set}) => (
+  <>
+    <F label="Judul Buku *">
+      <input className="fi" value={f.title} onChange={e=>set('title',e.target.value)} placeholder="Contoh: Petualangan di Pulau Naga"/>
+    </F>
+    <div className="field-row">
+      <F label="Penulis"><input className="fi" value={f.author} onChange={e=>set('author',e.target.value)} placeholder="Nama penulis"/></F>
+      <F label="Jumlah Bab"><input className="fi" type="number" value={f.chapters} onChange={e=>set('chapters',parseInt(e.target.value)||1)} min="1"/></F>
+    </div>
+    <div className="field-row-3">
+      <F label="Usia"><select className="fs" value={f.age} onChange={e=>set('age',e.target.value)}>{AGES.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+      <F label="Genre"><select className="fs" value={f.genre} onChange={e=>set('genre',e.target.value)}>{GENRE.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+      <F label="Tema Cover"><select className="fs" value={f.theme} onChange={e=>set('theme',e.target.value)}>{THEME.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+    </div>
+    <F label="Sinopsis"><textarea className="ft" value={f.summary} onChange={e=>set('summary',e.target.value)} placeholder="Ringkasan cerita yang menarik..." rows={3}/></F>
+  </>
+);
+
+const BooksPage = () => {
+  const [items,setItems]   = useState([]);
+  const [loading,setLoading]= useState(true);
+  const [q,setQ]           = useState('');
+  const [modal,setModal]   = useState(null);
+  const [form,setForm]     = useState(BOOK_EMPTY);
+  const [saving,setSaving] = useState(false);
+  const [del,setDel]       = useState(null);
+
+  const load = () => { setLoading(true); window.CerriaDB.getContentBooks().then(d=>{setItems(d);setLoading(false);}); };
+  useEffect(()=>load(),[]);
+
+  const sf = (k,v) => setForm(f=>({...f,[k]:v}));
+  const filtered = items.filter(it=>it.title.toLowerCase().includes(q.toLowerCase())||it.author.toLowerCase().includes(q.toLowerCase()));
+
+  const save = async () => {
+    if (!form.title.trim()) { toast('Judul wajib diisi','err'); return; }
+    setSaving(true);
+    try {
+      if (modal==='add') { const p={...form}; delete p.id; await window.CerriaDB.createContentBook(p); toast('Buku ditambahkan'); }
+      else { await window.CerriaDB.updateContentBook(form.id,form); toast('Buku diperbarui'); }
+      setModal(null); load();
+    } catch(e) { toast('Gagal menyimpan','err'); }
+    setSaving(false);
+  };
+
+  const doDelete = async () => {
+    await window.CerriaDB.deleteContentBook(del.id);
+    toast('Buku dihapus');
+    setDel(null); load();
+  };
+
+  const GENRE_BADGE = {petualangan:'b-orange',fabel:'b-green',edukasi:'b-blue',humor:'b-purple'};
+
+  return (
+    <>
+      <div className="page-head">
+        <div><div className="page-title">📚 Perpustakaan Buku</div><div className="page-sub">Kelola koleksi buku cerita untuk anak</div></div>
+        <button className="btn btn-primary" onClick={()=>{setForm(BOOK_EMPTY);setModal('add');}}>+ Tambah Buku</button>
+      </div>
+      <div className="table-card">
+        <div className="table-toolbar">
+          <div className="table-title">{items.length} buku</div>
+          <div className="search-wrap">
+            <span className="search-icon">🔍</span>
+            <input className="search-box" value={q} onChange={e=>setQ(e.target.value)} placeholder="Cari judul atau penulis..."/>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Judul</th><th>Penulis</th><th>Usia</th><th>Genre</th><th>Bab</th><th>Aksi</th></tr></thead>
+          <tbody>
+            {loading && <tr><td colSpan={7}><div className="empty-state"><div className="empty-icon">⏳</div><div>Memuat data...</div></div></td></tr>}
+            {!loading && filtered.length===0 && <tr><td colSpan={7}><div className="empty-state"><div className="empty-icon">📭</div><div>Tidak ada buku ditemukan</div></div></td></tr>}
+            {filtered.map((it,i)=>(
+              <tr key={it.id}>
+                <td><span className="badge b-gray">{i+1}</span></td>
+                <td><div style={{fontWeight:700}}>{it.title}</div><div style={{fontSize:12,color:'#8C7A6B',marginTop:2}}>{it.theme} · ID: {it.id}</div></td>
+                <td>{it.author}</td>
+                <td><span className="badge b-orange">{it.age} thn</span></td>
+                <td><span className={`badge ${GENRE_BADGE[it.genre]||'b-gray'}`}>{it.genre}</span></td>
+                <td style={{textAlign:'center'}}>{it.chapters}</td>
+                <td><div className="actions">
+                  <button className="btn btn-sm btn-edit" onClick={()=>{setForm({...it});setModal('edit');}}>✎ Edit</button>
+                  <button className="btn btn-sm btn-del" onClick={()=>setDel(it)}>🗑</button>
+                </div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {modal && <Modal title={modal==='add'?'Tambah Buku Baru':'Edit Buku'} onClose={()=>setModal(null)} onSave={save} saving={saving}><BookForm f={form} set={sf}/></Modal>}
+      {del && <DelConfirm label={del.title} onConfirm={doDelete} onCancel={()=>setDel(null)}/>}
+    </>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ── VIDEOS PAGE ───────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+const VID_EMPTY = {title:'',duration:'5:00',theme:'forest',thumb:'forest'};
+const VideoForm = ({f,set}) => (
+  <>
+    <F label="Judul Episode *"><input className="fi" value={f.title} onChange={e=>set('title',e.target.value)} placeholder="Judul video book"/></F>
+    <div className="field-row">
+      <F label="Durasi" hint="Format: 4:32"><input className="fi" value={f.duration} onChange={e=>set('duration',e.target.value)} placeholder="5:00"/></F>
+      <F label="Tema Latar"><select className="fs" value={f.theme} onChange={e=>set('theme',e.target.value)}>{THEME.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+    </div>
+    <F label="Thumbnail Scene"><select className="fs" value={f.thumb} onChange={e=>set('thumb',e.target.value)}>{THEME.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+  </>
+);
+
+const VideosPage = () => {
+  const [items,setItems]   = useState([]);
+  const [loading,setLoading]= useState(true);
+  const [q,setQ]           = useState('');
+  const [modal,setModal]   = useState(null);
+  const [form,setForm]     = useState(VID_EMPTY);
+  const [saving,setSaving] = useState(false);
+  const [del,setDel]       = useState(null);
+
+  const load = () => { setLoading(true); window.CerriaDB.getContentEpisodes().then(d=>{setItems(d);setLoading(false);}); };
+  useEffect(()=>load(),[]);
+
+  const sf = (k,v) => setForm(f=>({...f,[k]:v}));
+  const filtered = items.filter(it=>it.title.toLowerCase().includes(q.toLowerCase()));
+
+  const save = async () => {
+    if (!form.title.trim()) { toast('Judul wajib diisi','err'); return; }
+    setSaving(true);
+    try {
+      if (modal==='add') { const p={...form}; delete p.id; await window.CerriaDB.createContentEpisode(p); toast('Episode ditambahkan'); }
+      else { await window.CerriaDB.updateContentEpisode(form.id,form); toast('Episode diperbarui'); }
+      setModal(null); load();
+    } catch(e) { toast('Gagal menyimpan','err'); }
+    setSaving(false);
+  };
+
+  const doDelete = async () => { await window.CerriaDB.deleteContentEpisode(del.id); toast('Episode dihapus'); setDel(null); load(); };
+
+  return (
+    <>
+      <div className="page-head">
+        <div><div className="page-title">🎬 Video Book</div><div className="page-sub">Episode animasi cerita untuk anak</div></div>
+        <button className="btn btn-primary" onClick={()=>{setForm(VID_EMPTY);setModal('add');}}>+ Tambah Episode</button>
+      </div>
+      <div className="table-card">
+        <div className="table-toolbar">
+          <div className="table-title">{items.length} episode</div>
+          <div className="search-wrap"><span className="search-icon">🔍</span><input className="search-box" value={q} onChange={e=>setQ(e.target.value)} placeholder="Cari episode..."/></div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Judul Episode</th><th>Durasi</th><th>Tema</th><th>Thumbnail</th><th>Aksi</th></tr></thead>
+          <tbody>
+            {loading && <tr><td colSpan={6}><div className="empty-state"><div className="empty-icon">⏳</div><div>Memuat...</div></div></td></tr>}
+            {!loading && filtered.length===0 && <tr><td colSpan={6}><div className="empty-state"><div className="empty-icon">📭</div><div>Tidak ada episode</div></div></td></tr>}
+            {filtered.map((it,i)=>(
+              <tr key={it.id}>
+                <td><span className="badge b-gray">{i+1}</span></td>
+                <td><div style={{fontWeight:700}}>{it.title}</div><div style={{fontSize:12,color:'#8C7A6B',marginTop:2}}>ID: {it.id}</div></td>
+                <td><span className="badge b-blue">{it.duration}</span></td>
+                <td>{it.theme}</td>
+                <td>{it.thumb}</td>
+                <td><div className="actions"><button className="btn btn-sm btn-edit" onClick={()=>{setForm({...it});setModal('edit');}}>✎ Edit</button><button className="btn btn-sm btn-del" onClick={()=>setDel(it)}>🗑</button></div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {modal && <Modal title={modal==='add'?'Tambah Episode':'Edit Episode'} onClose={()=>setModal(null)} onSave={save} saving={saving}><VideoForm f={form} set={sf}/></Modal>}
+      {del && <DelConfirm label={del.title} onConfirm={doDelete} onCancel={()=>setDel(null)}/>}
+    </>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ── SONGS PAGE ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+const SONG_EMPTY = {title:'',artist:'Lagu Tradisional',duration_secs:60,color:'#FFD17A',color2:'#FF8C42',lyrics:[],_lyricsText:''};
+const toText = (arr) => (arr||[]).map(l=>l.text).join('\n');
+const fromText = (txt) => txt.split('\n').filter(l=>l.trim()).map((text,i)=>({t:i*5000,text}));
+
+const SongForm = ({f,set}) => (
+  <>
+    <F label="Judul Lagu *"><input className="fi" value={f.title} onChange={e=>set('title',e.target.value)} placeholder="Judul lagu"/></F>
+    <div className="field-row">
+      <F label="Artis / Pencipta"><input className="fi" value={f.artist} onChange={e=>set('artist',e.target.value)} placeholder="Lagu Tradisional"/></F>
+      <F label="Durasi (detik)"><input className="fi" type="number" value={f.duration_secs} onChange={e=>set('duration_secs',parseInt(e.target.value)||60)} min="1"/></F>
+    </div>
+    <div className="field-row">
+      <F label="Warna Gradien 1">
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <input type="color" value={f.color} onChange={e=>set('color',e.target.value)} style={{width:40,height:40,border:'none',borderRadius:8,cursor:'pointer',padding:2}}/>
+          <input className="fi" value={f.color} onChange={e=>set('color',e.target.value)} style={{flex:1}}/>
+        </div>
+      </F>
+      <F label="Warna Gradien 2">
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <input type="color" value={f.color2} onChange={e=>set('color2',e.target.value)} style={{width:40,height:40,border:'none',borderRadius:8,cursor:'pointer',padding:2}}/>
+          <input className="fi" value={f.color2} onChange={e=>set('color2',e.target.value)} style={{flex:1}}/>
+        </div>
+      </F>
+    </div>
+    <div style={{marginBottom:16}}>
+      <div style={{width:'100%',height:40,borderRadius:12,background:`linear-gradient(90deg,${f.color},${f.color2})`,marginBottom:12}}/>
+    </div>
+    <F label="Lirik Lagu" hint="Satu baris per bait. Setiap baris otomatis diberi jeda 5 detik.">
+      <textarea className="ft" rows={5} value={f._lyricsText||''} onChange={e=>set('_lyricsText',e.target.value)} placeholder={"Bintang kecil di langit yang biru...\nAmat banyak menghias angkasa...\n..."}/>
+    </F>
+  </>
+);
+
+const SongsPage = () => {
+  const [items,setItems]   = useState([]);
+  const [loading,setLoading]= useState(true);
+  const [q,setQ]           = useState('');
+  const [modal,setModal]   = useState(null);
+  const [form,setForm]     = useState(SONG_EMPTY);
+  const [saving,setSaving] = useState(false);
+  const [del,setDel]       = useState(null);
+
+  const load = () => { setLoading(true); window.CerriaDB.getContentSongs().then(d=>{setItems(d);setLoading(false);}); };
+  useEffect(()=>load(),[]);
+
+  const sf = (k,v) => setForm(f=>({...f,[k]:v}));
+  const openEdit = (it) => { setForm({...it,_lyricsText:toText(it.lyrics||[])}); setModal('edit'); };
+
+  const filtered = items.filter(it=>it.title.toLowerCase().includes(q.toLowerCase())||it.artist.toLowerCase().includes(q.toLowerCase()));
+
+  const save = async () => {
+    if (!form.title.trim()) { toast('Judul wajib diisi','err'); return; }
+    setSaving(true);
+    const payload = {...form, lyrics: fromText(form._lyricsText||'')};
+    delete payload._lyricsText;
+    try {
+      if (modal==='add') { delete payload.id; await window.CerriaDB.createContentSong(payload); toast('Lagu ditambahkan'); }
+      else { await window.CerriaDB.updateContentSong(form.id,payload); toast('Lagu diperbarui'); }
+      setModal(null); load();
+    } catch(e) { toast('Gagal menyimpan','err'); }
+    setSaving(false);
+  };
+
+  const doDelete = async () => { await window.CerriaDB.deleteContentSong(del.id); toast('Lagu dihapus'); setDel(null); load(); };
+
+  return (
+    <>
+      <div className="page-head">
+        <div><div className="page-title">🎵 Lagu Anak</div><div className="page-sub">Koleksi lagu dengan lirik terjadwal</div></div>
+        <button className="btn btn-primary" onClick={()=>{setForm(SONG_EMPTY);setModal('add');}}>+ Tambah Lagu</button>
+      </div>
+      <div className="table-card">
+        <div className="table-toolbar">
+          <div className="table-title">{items.length} lagu</div>
+          <div className="search-wrap"><span className="search-icon">🔍</span><input className="search-box" value={q} onChange={e=>setQ(e.target.value)} placeholder="Cari lagu atau artis..."/></div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Judul</th><th>Artis</th><th>Durasi</th><th>Warna</th><th>Lirik</th><th>Aksi</th></tr></thead>
+          <tbody>
+            {loading && <tr><td colSpan={7}><div className="empty-state"><div className="empty-icon">⏳</div><div>Memuat...</div></div></td></tr>}
+            {!loading && filtered.length===0 && <tr><td colSpan={7}><div className="empty-state"><div className="empty-icon">📭</div><div>Tidak ada lagu</div></div></td></tr>}
+            {filtered.map((it,i)=>(
+              <tr key={it.id}>
+                <td><span className="badge b-gray">{i+1}</span></td>
+                <td><div style={{fontWeight:700}}>{it.title}</div><div style={{fontSize:12,color:'#8C7A6B'}}>ID: {it.id}</div></td>
+                <td>{it.artist}</td>
+                <td><span className="badge b-purple">{it.duration_secs}dtk</span></td>
+                <td><div style={{width:48,height:22,borderRadius:6,background:`linear-gradient(90deg,${it.color},${it.color2})`}}/></td>
+                <td><span className="badge b-gray">{(it.lyrics||[]).length} baris</span></td>
+                <td><div className="actions"><button className="btn btn-sm btn-edit" onClick={()=>openEdit(it)}>✎ Edit</button><button className="btn btn-sm btn-del" onClick={()=>setDel(it)}>🗑</button></div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {modal && <Modal title={modal==='add'?'Tambah Lagu':'Edit Lagu'} onClose={()=>setModal(null)} onSave={save} saving={saving}><SongForm f={form} set={sf}/></Modal>}
+      {del && <DelConfirm label={del.title} onConfirm={doDelete} onCancel={()=>setDel(null)}/>}
+    </>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ── WORKSHEETS PAGE ───────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+const WS_EMPTY = {title:'',subject:'mat',age:'6-8',color:'#4EA8DE',pages:2,difficulty:'Mudah',preview:'numbers',description:''};
+const WsForm = ({f,set}) => (
+  <>
+    <F label="Judul Worksheet *"><input className="fi" value={f.title} onChange={e=>set('title',e.target.value)} placeholder="Judul worksheet"/></F>
+    <div className="field-row">
+      <F label="Mapel"><select className="fs" value={f.subject} onChange={e=>set('subject',e.target.value)}>{WSSUBJ.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+      <F label="Usia"><select className="fs" value={f.age} onChange={e=>set('age',e.target.value)}>{AGES.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+    </div>
+    <div className="field-row-3">
+      <F label="Jumlah Halaman"><input className="fi" type="number" value={f.pages} onChange={e=>set('pages',parseInt(e.target.value)||1)} min="1"/></F>
+      <F label="Tingkat Kesulitan"><select className="fs" value={f.difficulty} onChange={e=>set('difficulty',e.target.value)}>{DIFF.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+      <F label="Preview Tipe"><select className="fs" value={f.preview} onChange={e=>set('preview',e.target.value)}>{PREV.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+    </div>
+    <F label="Deskripsi"><textarea className="ft" rows={2} value={f.description||''} onChange={e=>set('description',e.target.value)} placeholder="Deskripsi singkat worksheet..."/></F>
+  </>
+);
+
+const WorksheetsPage = () => {
+  const [items,setItems]   = useState([]);
+  const [loading,setLoading]= useState(true);
+  const [q,setQ]           = useState('');
+  const [subj,setSubj]     = useState('semua');
+  const [modal,setModal]   = useState(null);
+  const [form,setForm]     = useState(WS_EMPTY);
+  const [saving,setSaving] = useState(false);
+  const [del,setDel]       = useState(null);
+
+  const load = () => { setLoading(true); window.CerriaDB.getContentWorksheets().then(d=>{setItems(d);setLoading(false);}); };
+  useEffect(()=>load(),[]);
+
+  const sf = (k,v) => setForm(f=>({...f,[k]:v}));
+  const filtered = items.filter(it=>
+    (subj==='semua'||it.subject===subj) &&
+    it.title.toLowerCase().includes(q.toLowerCase())
+  );
+
+  const save = async () => {
+    if (!form.title.trim()) { toast('Judul wajib diisi','err'); return; }
+    setSaving(true);
+    try {
+      if (modal==='add') { const p={...form}; delete p.id; await window.CerriaDB.createContentWorksheet(p); toast('Worksheet ditambahkan'); }
+      else { await window.CerriaDB.updateContentWorksheet(form.id,form); toast('Worksheet diperbarui'); }
+      setModal(null); load();
+    } catch(e) { toast('Gagal menyimpan','err'); }
+    setSaving(false);
+  };
+
+  const doDelete = async () => { await window.CerriaDB.deleteContentWorksheet(del.id); toast('Worksheet dihapus'); setDel(null); load(); };
+
+  return (
+    <>
+      <div className="page-head">
+        <div><div className="page-title">📋 Worksheet</div><div className="page-sub">Lembar kerja interaktif per mata pelajaran</div></div>
+        <button className="btn btn-primary" onClick={()=>{setForm(WS_EMPTY);setModal('add');}}>+ Tambah Worksheet</button>
+      </div>
+      <div className="table-card">
+        <div className="table-toolbar">
+          <div style={{display:'flex',gap:8,alignItems:'center'}}>
+            <div className="table-title">{filtered.length} worksheet</div>
+            <div style={{display:'flex',gap:6}}>
+              {[{v:'semua',l:'Semua'},...WSSUBJ].map(s=>(
+                <button key={s.v} onClick={()=>setSubj(s.v)} className="btn btn-sm" style={{background:subj===s.v?'#FF7A3A':'#F0E8DE',color:subj===s.v?'#fff':'#8C7A6B'}}>{s.l}</button>
+              ))}
+            </div>
+          </div>
+          <div className="search-wrap"><span className="search-icon">🔍</span><input className="search-box" value={q} onChange={e=>setQ(e.target.value)} placeholder="Cari worksheet..."/></div>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Judul</th><th>Mapel</th><th>Usia</th><th>Halaman</th><th>Tingkat</th><th>Deskripsi</th><th>Aksi</th></tr></thead>
+          <tbody>
+            {loading && <tr><td colSpan={8}><div className="empty-state"><div className="empty-icon">⏳</div><div>Memuat...</div></div></td></tr>}
+            {!loading && filtered.length===0 && <tr><td colSpan={8}><div className="empty-state"><div className="empty-icon">📭</div><div>Tidak ada worksheet</div></div></td></tr>}
+            {filtered.map((it,i)=>(
+              <tr key={it.id}>
+                <td><span className="badge b-gray">{i+1}</span></td>
+                <td><div style={{fontWeight:700}}>{it.title}</div><div style={{fontSize:12,color:'#8C7A6B'}}>ID: {it.id}</div></td>
+                <td><span className="badge" style={{background:SUBJ_BG[it.subject],color:SUBJ_FG[it.subject]}}>{WSSUBJ.find(s=>s.v===it.subject)?.l||it.subject}</span></td>
+                <td><span className="badge b-orange">{it.age} thn</span></td>
+                <td style={{textAlign:'center'}}>{it.pages}</td>
+                <td><span className={`badge ${it.difficulty==='Mudah'?'b-green':it.difficulty==='Sedang'?'b-orange':'b-purple'}`}>{it.difficulty}</span></td>
+                <td><div style={{maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:13,color:'#8C7A6B'}}>{it.description}</div></td>
+                <td><div className="actions"><button className="btn btn-sm btn-edit" onClick={()=>{setForm({...it});setModal('edit');}}>✎ Edit</button><button className="btn btn-sm btn-del" onClick={()=>setDel(it)}>🗑</button></div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {modal && <Modal title={modal==='add'?'Tambah Worksheet':'Edit Worksheet'} onClose={()=>setModal(null)} onSave={save} saving={saving}><WsForm f={form} set={sf}/></Modal>}
+      {del && <DelConfirm label={del.title} onConfirm={doDelete} onCancel={()=>setDel(null)}/>}
+    </>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ── MISSIONS PAGE ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+const MissionsPage = () => {
+  const [subj,setSubj]     = useState('mat');
+  const [levels,setLevels] = useState([]);
+  const [loading,setLoading]= useState(true);
+  const [expanded,setExpanded]= useState(null);
+  const [qs,setQs]         = useState({});
+  const [lvlModal,setLvlModal]= useState(null);
+  const [lvlForm,setLvlForm]= useState({subject_id:'mat',title:'',is_boss:false});
+  const [qModal,setQModal] = useState(null);
+  const [qForm,setQForm]   = useState({level_id:0,prompt:'',scene:'apples',opts:['','','',''],correct:0});
+  const [saving,setSaving] = useState(false);
+  const [delLvl,setDelLvl] = useState(null);
+  const [delQ,setDelQ]     = useState(null);
+
+  const loadLevels = () => { setLoading(true); window.CerriaDB.getContentLevels(subj).then(d=>{setLevels(d);setLoading(false);}); };
+  useEffect(()=>{ loadLevels(); setExpanded(null); },[subj]);
+
+  const loadQs = (lvlId) => {
+    if (qs[lvlId]) return;
+    window.CerriaDB.getContentQuestions(lvlId).then(d=>setQs(q=>({...q,[lvlId]:d})));
+  };
+
+  const toggle = (id) => {
+    if (expanded===id){setExpanded(null);return;}
+    setExpanded(id); loadQs(id);
+  };
+
+  const reloadQs = (lvlId) => {
+    window.CerriaDB.getContentQuestions(lvlId).then(d=>setQs(q=>({...q,[lvlId]:d})));
+  };
+
+  const saveLvl = async () => {
+    if (!lvlForm.title.trim()) { toast('Judul wajib diisi','err'); return; }
+    setSaving(true);
+    try {
+      if (lvlModal==='add') await window.CerriaDB.createContentLevel({...lvlForm,sort_order:levels.length+1});
+      else await window.CerriaDB.updateContentLevel(lvlForm.id,lvlForm);
+      toast(lvlModal==='add'?'Level ditambahkan':'Level diperbarui');
+      setLvlModal(null); loadLevels();
+    } catch(e){toast('Gagal','err');}
+    setSaving(false);
+  };
+
+  const saveQ = async () => {
+    if (!qForm.prompt.trim()) { toast('Pertanyaan wajib diisi','err'); return; }
+    setSaving(true);
+    const options = ['a','b','c','d'].map((id,i)=>({id,label:qForm.opts[i],correct:i===qForm.correct}));
+    const payload = {level_id:qForm.level_id,prompt:qForm.prompt,scene:qForm.scene,options,sort_order:(qs[qForm.level_id]||[]).length+1};
+    try {
+      if (qModal==='add') await window.CerriaDB.createContentQuestion(payload);
+      else await window.CerriaDB.updateContentQuestion(qForm.id,payload);
+      toast(qModal==='add'?'Soal ditambahkan':'Soal diperbarui');
+      setQModal(null); reloadQs(qForm.level_id);
+    } catch(e){toast('Gagal','err');}
+    setSaving(false);
+  };
+
+  const openEditQ = (q,lvlId) => {
+    const opts = Array.isArray(q.options)?q.options.map(o=>o.label):['','','',''];
+    const correct = Array.isArray(q.options)?Math.max(0,q.options.findIndex(o=>o.correct)):0;
+    setQForm({id:q.id,level_id:lvlId,prompt:q.prompt,scene:q.scene||'apples',opts,correct});
+    setQModal('edit');
+  };
+
+  const doDelLvl = async () => { await window.CerriaDB.deleteContentLevel(delLvl.id); toast('Level dihapus'); setDelLvl(null); loadLevels(); };
+  const doDelQ = async () => { await window.CerriaDB.deleteContentQuestion(delQ.id); toast('Soal dihapus'); setDelQ(null); reloadQs(delQ.level_id); };
+
+  const SUBJ_LABEL = {mat:'Matematika',bin:'Bahasa Indonesia',eng:'Bahasa Inggris',sci:'Sains'};
+
+  return (
+    <>
+      <div className="page-head">
+        <div><div className="page-title">🗺️ Modul Misi</div><div className="page-sub">Level dan soal-soal per mata pelajaran</div></div>
+        <button className="btn btn-primary" onClick={()=>{setLvlForm({subject_id:subj,title:'',is_boss:false});setLvlModal('add');}}>+ Tambah Level</button>
+      </div>
+
+      {/* Subject tabs */}
+      <div style={{display:'flex',gap:10,marginBottom:20}}>
+        {SUBJ.map(s=>(
+          <button key={s.v} onClick={()=>setSubj(s.v)} className="btn" style={{background:subj===s.v?SUBJ_COLOR[s.v]:'#fff',color:subj===s.v?'#fff':'#8C7A6B',boxShadow:subj===s.v?`0 3px 0 rgba(0,0,0,.15)`:'none',border:`1.5px solid ${subj===s.v?SUBJ_COLOR[s.v]:'#EDE8E2'}`}}>{s.l}</button>
+        ))}
+      </div>
+
+      <div className="table-card">
+        <div className="table-toolbar">
+          <div className="table-title">{levels.length} level · {SUBJ_LABEL[subj]}</div>
+        </div>
+        {loading && <div className="empty-state"><div className="empty-icon">⏳</div><div>Memuat...</div></div>}
+        {!loading && levels.length===0 && <div className="empty-state"><div className="empty-icon">📭</div><div>Belum ada level untuk mapel ini</div></div>}
+        {levels.map(lvl=>(
+          <div key={lvl.id} className="lvl-row">
+            <div className="lvl-head">
+              <div className="lvl-num" style={{background:lvl.is_boss?'linear-gradient(135deg,#FF8C42,#E84A4A)':'linear-gradient(135deg,#4EA8DE,#9B59B6)'}}>{lvl.sort_order}</div>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:700,fontSize:15}}>{lvl.is_boss&&'👑 '}{lvl.title}</div>
+                <div style={{fontSize:12,color:'#8C7A6B',marginTop:2}}>
+                  {qs[lvl.id]?`${qs[lvl.id].length} soal`:'Klik ▼ untuk lihat soal'} · ID: {lvl.id}
+                </div>
+              </div>
+              <div className="actions">
+                <button className="btn btn-sm btn-edit" onClick={()=>{setLvlForm({...lvl});setLvlModal('edit');}}>✎ Edit</button>
+                <button className="btn btn-sm btn-del" onClick={()=>setDelLvl(lvl)}>🗑</button>
+                <button className="btn btn-sm" style={{background:'#F0E8DE',color:'#8C7A6B'}} onClick={()=>toggle(lvl.id)}>{expanded===lvl.id?'▲ Tutup':'▼ Soal'}</button>
+              </div>
+            </div>
+            {expanded===lvl.id && (
+              <div className="lvl-body">
+                <div className="q-head">
+                  <span style={{fontSize:13,fontWeight:700,color:'#8C7A6B'}}>Daftar Soal ({(qs[lvl.id]||[]).length})</span>
+                  <button className="btn btn-sm btn-primary" onClick={()=>{setQForm({level_id:lvl.id,prompt:'',scene:'apples',opts:['','','',''],correct:0});setQModal('add');}}>+ Tambah Soal</button>
+                </div>
+                {(qs[lvl.id]||[]).map((q,qi)=>(
+                  <div key={q.id} className="q-item">
+                    <div className="q-num">{qi+1}</div>
+                    <div style={{flex:1}}>{q.prompt}</div>
+                    <div style={{display:'flex',gap:4,flexWrap:'wrap',maxWidth:200}}>
+                      {Array.isArray(q.options)&&q.options.map(o=>(
+                        <span key={o.id} className={`badge ${o.correct?'b-green':'b-gray'}`}>{o.id.toUpperCase()}: {o.label}</span>
+                      ))}
+                    </div>
+                    <div className="actions">
+                      <button className="btn btn-sm btn-edit" onClick={()=>openEditQ(q,lvl.id)}>✎</button>
+                      <button className="btn btn-sm btn-del" onClick={()=>setDelQ({...q,level_id:lvl.id})}>🗑</button>
+                    </div>
+                  </div>
+                ))}
+                {(qs[lvl.id]||[]).length===0 && <div style={{padding:'16px 58px',fontSize:13,color:'#8C7A6B'}}>Belum ada soal. Tambah soal di atas.</div>}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Level modal */}
+      {lvlModal && (
+        <Modal title={lvlModal==='add'?'Tambah Level':'Edit Level'} onClose={()=>setLvlModal(null)} onSave={saveLvl} saving={saving}>
+          <F label="Mata Pelajaran"><select className="fs" value={lvlForm.subject_id} onChange={e=>setLvlForm(f=>({...f,subject_id:e.target.value}))}>{SUBJ.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+          <F label="Judul Level *"><input className="fi" value={lvlForm.title} onChange={e=>setLvlForm(f=>({...f,title:e.target.value}))} placeholder="Contoh: Mengenal Angka 1–10"/></F>
+          <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',background:'#FFF5EF',borderRadius:12,cursor:'pointer'}} onClick={()=>setLvlForm(f=>({...f,is_boss:!f.is_boss}))}>
+            <input type="checkbox" checked={!!lvlForm.is_boss} onChange={()=>{}} style={{width:18,height:18,cursor:'pointer'}}/>
+            <span style={{fontWeight:700,fontSize:14}}>Level Boss 👑 <span style={{color:'#8C7A6B',fontWeight:600}}>(level tantangan akhir)</span></span>
+          </div>
+        </Modal>
+      )}
+
+      {/* Question modal */}
+      {qModal && (
+        <Modal title={qModal==='add'?'Tambah Soal':'Edit Soal'} onClose={()=>setQModal(null)} onSave={saveQ} saving={saving} lg>
+          <F label="Pertanyaan *"><textarea className="ft" rows={2} value={qForm.prompt} onChange={e=>setQForm(f=>({...f,prompt:e.target.value}))} placeholder="Tulis pertanyaan..."/></F>
+          <F label="Ilustrasi Scene"><select className="fs" value={qForm.scene} onChange={e=>setQForm(f=>({...f,scene:e.target.value}))}>{SCENE.map(o=><option key={o.v} value={o.v}>{o.l}</option>)}</select></F>
+          <div style={{marginBottom:4}}>
+            <label>Pilihan Jawaban <span style={{color:'#3BB273',fontStyle:'normal'}}>(pilih yang benar dengan ○)</span></label>
+          </div>
+          {['A','B','C','D'].map((id,i)=>(
+            <div key={id} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+              <div onClick={()=>setQForm(f=>({...f,correct:i}))} style={{width:28,height:28,borderRadius:999,border:`2px solid ${qForm.correct===i?'#3BB273':'#EDE8E2'}`,background:qForm.correct===i?'#D6EBC9':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontWeight:800,fontSize:13,color:qForm.correct===i?'#2F6B4A':'#8C7A6B',flexShrink:0,transition:'all .15s'}}>{id}</div>
+              <input className="fi" style={{flex:1}} value={qForm.opts[i]} onChange={e=>{const o=[...qForm.opts];o[i]=e.target.value;setQForm(f=>({...f,opts:o}));}} placeholder={`Pilihan ${id}`}/>
+              {qForm.correct===i && <span style={{fontSize:13,color:'#3BB273',fontWeight:700,whiteSpace:'nowrap'}}>✓ Benar</span>}
+            </div>
+          ))}
+        </Modal>
+      )}
+
+      {delLvl && <DelConfirm label={delLvl.title} onConfirm={doDelLvl} onCancel={()=>setDelLvl(null)}/>}
+      {delQ && <DelConfirm label={delQ.prompt} onConfirm={doDelQ} onCancel={()=>setDelQ(null)}/>}
+    </>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ── DASHBOARD HOME ────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+const DashboardHome = ({goPage}) => {
+  const [counts,setCounts] = useState({books:0,episodes:0,songs:0,worksheets:0,levels:0});
+  useEffect(()=>{
+    Promise.all([
+      window.CerriaDB.getContentBooks(),
+      window.CerriaDB.getContentEpisodes(),
+      window.CerriaDB.getContentSongs(),
+      window.CerriaDB.getContentWorksheets(),
+      window.CerriaDB.getContentLevels(null),
+    ]).then(([b,e,s,w,l])=>setCounts({books:b.length,episodes:e.length,songs:s.length,worksheets:w.length,levels:l.length}));
+  },[]);
+
+  const STATS = [
+    {icon:'📚',label:'Buku',num:counts.books,color:'#FF8C42',bg:'#FFE3CD',page:'books'},
+    {icon:'🎬',label:'Episode Video',num:counts.episodes,color:'#4EA8DE',bg:'#DDEFFA',page:'video'},
+    {icon:'🎵',label:'Lagu',num:counts.songs,color:'#FF7A93',bg:'#FFE3EC',page:'songs'},
+    {icon:'📋',label:'Worksheet',num:counts.worksheets,color:'#9B59B6',bg:'#EDE0F7',page:'ws'},
+    {icon:'🗺️',label:'Level Misi',num:counts.levels,color:'#3BB273',bg:'#D6EBC9',page:'misi'},
+  ];
+
+  return (
+    <>
+      <div className="page-head">
+        <div>
+          <div className="page-title">👋 Selamat Datang, Admin!</div>
+          <div className="page-sub">Kelola seluruh konten aplikasi Cerria dari sini.</div>
+        </div>
+      </div>
+      <div className="stats-grid">
+        {STATS.map(s=>(
+          <div key={s.label} className="stat-card" onClick={()=>goPage(s.page)} style={{cursor:'pointer',transition:'transform .15s'}} onMouseEnter={e=>e.currentTarget.style.transform='translateY(-3px)'} onMouseLeave={e=>e.currentTarget.style.transform=''}>
+            <div className="stat-icon" style={{background:s.bg}}>{s.icon}</div>
+            <div className="stat-num">{s.num}</div>
+            <div className="stat-label">{s.label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:'#fff',borderRadius:18,padding:28,boxShadow:'0 2px 10px rgba(180,90,40,.07)'}}>
+        <div style={{fontFamily:"'Baloo 2',cursive",fontWeight:800,fontSize:18,marginBottom:16}}>Panduan Admin</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+          {[
+            {icon:'🔐',title:'Aktifkan Akun Admin',desc:'Jalankan SQL ini di Supabase Dashboard:',code:"UPDATE profiles SET is_admin = true\nWHERE id = 'user-id-kamu';"},
+            {icon:'🗄️',title:'Setup Database',desc:'Jalankan file SQL schema di SQL Editor Supabase:',code:'supabase/content-schema.sql'},
+            {icon:'📱',title:'Akses dari App',desc:'Buka Cerria → Profil → tombol "Dashboard Admin" (hanya muncul jika is_admin = true)',code:''},
+            {icon:'🌐',title:'URL Admin Website',desc:'Akses langsung di browser:',code:window.location.href},
+          ].map(g=>(
+            <div key={g.title} style={{background:'#FAFAF8',borderRadius:14,padding:18,border:'1px solid #EDE8E2'}}>
+              <div style={{fontSize:24,marginBottom:8}}>{g.icon}</div>
+              <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>{g.title}</div>
+              <div style={{fontSize:13,color:'#8C7A6B',lineHeight:1.5}}>{g.desc}</div>
+              {g.code && <div style={{background:'#2A1F18',color:'#FFD17A',padding:'10px 14px',borderRadius:10,marginTop:10,fontFamily:'monospace',fontSize:12,whiteSpace:'pre-wrap',wordBreak:'break-all'}}>{g.code}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ── LOGIN PAGE ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+const AdminLogin = ({onLogin}) => {
+  const [email,setEmail]   = useState('');
+  const [pass,setPass]     = useState('');
+  const [loading,setLoading]= useState(false);
+  const [err,setErr]       = useState('');
+
+  const login = async (e) => {
+    e.preventDefault();
+    setErr(''); setLoading(true);
+    const {data,error} = await window.CerriaDB.signIn({email,password:pass});
+    if (error) { setErr(error.message||'Login gagal'); setLoading(false); return; }
+    const profile = await window.CerriaDB.getProfile(data.user.id);
+    if (!profile||!profile.is_admin) {
+      await window.CerriaDB.signOut();
+      setErr('Akun ini tidak memiliki akses admin.');
+      setLoading(false); return;
+    }
+    onLogin(data.session,profile);
+    setLoading(false);
+  };
+
+  return (
+    <div className="login-page">
+      <form className="login-card" onSubmit={login}>
+        <div className="login-logo">
+          <div style={{width:64,height:64,borderRadius:20,background:'linear-gradient(135deg,#FF9D5C,#FF7A3A)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:32,boxShadow:'0 6px 0 #C45A23'}}>📚</div>
+          <div className="login-logo-text">Cerria</div>
+          <div className="login-subtitle">Admin Panel</div>
+        </div>
+        <div className="login-title">Masuk sebagai Admin</div>
+        <div className="login-desc">Hanya akun dengan izin admin yang dapat mengakses halaman ini.</div>
+        {err && <div className="login-error">{err}</div>}
+        <div className="login-field"><label style={{display:'block',fontSize:12,fontWeight:700,color:'#8C7A6B',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Email</label><input type="email" className="login-fi" value={email} onChange={e=>setEmail(e.target.value)} placeholder="admin@cerria.id" required autoFocus/></div>
+        <div className="login-field"><label style={{display:'block',fontSize:12,fontWeight:700,color:'#8C7A6B',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Password</label><input type="password" className="login-fi" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••" required/></div>
+        <button type="submit" className="btn btn-primary" style={{width:'100%',height:50,borderRadius:14,fontSize:16,marginTop:8}} disabled={loading}>{loading?'Masuk...':'Masuk ke Admin Panel'}</button>
+      </form>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════
+// ── MAIN APP ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+const NAV = [
+  {id:'home',  label:'Beranda',    icon:'🏠'},
+  {id:'books', label:'Buku',       icon:'📚'},
+  {id:'video', label:'Video',      icon:'🎬'},
+  {id:'songs', label:'Lagu',       icon:'🎵'},
+  {id:'ws',    label:'Worksheet',  icon:'📋'},
+  {id:'misi',  label:'Misi',       icon:'🗺️'},
+];
+
+const AdminApp = () => {
+  const [session,setSession] = useState(null);
+  const [profile,setProfile] = useState(null);
+  const [checking,setChecking]= useState(true);
+  const [page,setPage]       = useState('home');
+
+  useEffect(()=>{
+    window.CerriaDB.getSession().then(async s=>{
+      if (s) {
+        const p = await window.CerriaDB.getProfile(s.user.id);
+        if (p && p.is_admin) { setSession(s); setProfile(p); }
+      }
+      setChecking(false);
+    });
+  },[]);
+
+  const logout = async () => {
+    await window.CerriaDB.signOut();
+    setSession(null); setProfile(null);
+  };
+
+  if (checking) return (
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#F5F0EB'}}>
+      <div style={{textAlign:'center'}}>
+        <div style={{fontSize:40,marginBottom:12}}>📚</div>
+        <div style={{fontFamily:"'Baloo 2',cursive",fontWeight:700,color:'#8C7A6B'}}>Memuat...</div>
+      </div>
+    </div>
+  );
+
+  if (!session) return <AdminLogin onLogin={(s,p)=>{setSession(s);setProfile(p);}}/>;
+
+  const userInitial = (profile?.name || session.user.email || 'A')[0].toUpperCase();
+
+  return (
+    <div className="layout">
+      {/* Sidebar */}
+      <div className="sidebar">
+        <div className="sb-logo">
+          <div style={{width:36,height:36,borderRadius:12,background:'linear-gradient(135deg,#FF9D5C,#FF7A3A)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>📚</div>
+          <div>
+            <div className="sb-logo-text">Cerria</div>
+            <div className="sb-logo-badge">ADMIN</div>
+          </div>
+        </div>
+
+        <nav className="sb-nav">
+          {NAV.map(n=>(
+            <button key={n.id} className={`nav-item${page===n.id?' active':''}`} onClick={()=>setPage(n.id)}>
+              <span style={{fontSize:18,flexShrink:0}}>{n.icon}</span>
+              <span>{n.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="sb-footer">
+          <div className="user-info">
+            <div className="user-avatar">{userInitial}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:700,fontSize:13,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{profile?.name||'Admin'}</div>
+              <div style={{fontSize:11,color:'#8C7A6B',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{session.user.email}</div>
+            </div>
+          </div>
+          <button className="btn btn-ghost" style={{width:'100%',marginTop:8,height:36}} onClick={logout}>⎋ Keluar</button>
+        </div>
+      </div>
+
+      {/* Main */}
+      <div className="main">
+        <div className="topbar">
+          <div style={{fontFamily:"'Baloo 2',cursive",fontWeight:800,fontSize:16}}>
+            {NAV.find(n=>n.id===page)?.icon} {NAV.find(n=>n.id===page)?.label || 'Admin'}
+          </div>
+          <div style={{flex:1}}/>
+          <div style={{fontSize:13,color:'#8C7A6B',fontWeight:600}}>Cerria Admin Dashboard</div>
+        </div>
+        <div className="content">
+          {page==='home'  && <DashboardHome goPage={setPage}/>}
+          {page==='books' && <BooksPage/>}
+          {page==='video' && <VideosPage/>}
+          {page==='songs' && <SongsPage/>}
+          {page==='ws'    && <WorksheetsPage/>}
+          {page==='misi'  && <MissionsPage/>}
+        </div>
+      </div>
+
+      <ToastLayer/>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<AdminApp/>);
+</script>
+</body>
+</html>
