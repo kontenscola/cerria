@@ -75,9 +75,12 @@ const SONGS = [
 const LaguLibrary = ({ go }) => (
   <div className="scroll fade-in">
     <div className="topbar">
-      <div>
-        <div className="display" style={{ fontSize: 26 }}>Lagu Anak</div>
-        <div className="greet-sub">Menyanyi sambil belajar!</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <button onClick={() => go('home')} className="btn-icon-round"><Icon name="arrow-left" size={20}/></button>
+        <div>
+          <div className="display" style={{ fontSize: 26 }}>Lagu Anak</div>
+          <div className="greet-sub">Menyanyi sambil belajar!</div>
+        </div>
       </div>
       <div className="avatar"><Mascot size={40}/></div>
     </div>

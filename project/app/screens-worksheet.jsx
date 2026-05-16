@@ -133,9 +133,12 @@ const WorksheetLibrary = ({ go }) => {
   return (
     <div className="scroll fade-in">
       <div className="topbar">
-        <div>
-          <div className="display" style={{ fontSize: 26 }}>Worksheet</div>
-          <div className="greet-sub">Latihan seru buat anak aktif!</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button onClick={() => go('home')} className="btn-icon-round"><Icon name="arrow-left" size={20}/></button>
+          <div>
+            <div className="display" style={{ fontSize: 26 }}>Worksheet</div>
+            <div className="greet-sub">Latihan seru buat anak aktif!</div>
+          </div>
         </div>
         <div className="avatar"><Mascot size={40}/></div>
       </div>

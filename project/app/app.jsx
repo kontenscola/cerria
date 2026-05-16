@@ -279,7 +279,7 @@ function App() {
   const inner = isSelfShell ? screen : (
     <div className={`app ${hasFrame ? 'has-status-bar' : 'no-status-bar'}`}>
       {screen}
-      {!hideNav && <BottomNav tab={currentTab || 'home'} setTab={setTab}/>}
+      {!hideNav && <BottomNav tab={currentTab} setTab={setTab}/>}
       {route.id === 'home' && (
         <button onClick={() => go('parent-pin')} style={{
           position:'absolute', right:16, top: hasFrame ? 70 : 14, zIndex:4,

@@ -46,7 +46,7 @@ const FeatureChips = ({ go }) => {
     <div style={{ marginTop: 14 }}>
       <div style={{ padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 17, color: 'var(--ink-1)' }}>Pilih Petualangan</div>
-        <button style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, color: '#FF7A3A', background: 'none', border: 'none', cursor: 'pointer' }}>Semua →</button>
+        <button onClick={() => go('buku')} style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, color: '#FF7A3A', background: 'none', border: 'none', cursor: 'pointer' }}>Semua →</button>
       </div>
       <div style={{ overflowX: 'auto', paddingLeft: 20, paddingBottom: 4, scrollbarWidth: 'none', display: 'flex', gap: 10 }}>
         {FEATURES.map(f => {
@@ -75,10 +75,10 @@ const FeatureChips = ({ go }) => {
 };
 
 // ── Recommendation Card (big) ────────────────────────────────
-const RecoCard = ({ go }) => (
+const RecoCard = ({ go, child }) => (
   <div style={{ margin: '20px 20px 0' }}>
     <div style={{ color: '#FF7A3A', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 12, letterSpacing: '.06em', marginBottom: 10 }}>
-      ⭐ REKOMENDASI UNTUK TESSA
+      ⭐ REKOMENDASI UNTUK {child ? child.name.toUpperCase() : 'KAMU'}
     </div>
     <div style={{ background: '#fff', borderRadius: 22, overflow: 'hidden', boxShadow: '0 6px 20px rgba(180,90,40,.10)' }}>
       {/* Illustration area */}
@@ -161,7 +161,7 @@ const PromoBanner = ({ go }) => (
 // ── Mungkin Juga Suka ────────────────────────────────────────
 const SUGGESTIONS = [
   { id: 's1', title: 'Singa Pemberani', sub: 'Video · 12 mnt',  icon: 'play',    fg: '#1F5C8A', bg: '#CFE7F5', target: 'player', params: { epId: 'v1' } },
-  { id: 's2', title: 'Hitung Bintang',  sub: 'Misi · 10 mnt',   icon: 'map',     fg: '#2F6B4A', bg: '#D6EBC9', target: 'misi',   params: {} },
+  { id: 's2', title: 'Hitung Bintang',  sub: 'Misi · 10 mnt',   icon: 'map',     fg: '#2F6B4A', bg: '#D6EBC9', target: 'modul',  params: {} },
   { id: 's3', title: 'Kupu Cantik',     sub: 'Lagu · 3 mnt',    icon: 'volume',  fg: '#C0395B', bg: '#FFE8F0', target: 'lagu',   params: {} },
   { id: 's4', title: 'Taman Bunga',     sub: 'Buku · 8 mnt',    icon: 'book',    fg: '#C44A1E', bg: '#FFE3CD', target: 'buku',   params: {} },
 ];
@@ -170,7 +170,7 @@ const SuggestionRow = ({ go }) => (
   <div style={{ margin: '22px 0 0' }}>
     <div style={{ padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 17, color: 'var(--ink-1)' }}>Mungkin juga suka</div>
-      <button style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, color: '#FF7A3A', background: 'none', border: 'none', cursor: 'pointer' }}>Semua →</button>
+      <button onClick={() => go('buku')} style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, color: '#FF7A3A', background: 'none', border: 'none', cursor: 'pointer' }}>Semua →</button>
     </div>
     <div style={{ overflowX: 'auto', paddingLeft: 20, paddingBottom: 4, scrollbarWidth: 'none', display: 'flex', gap: 12 }}>
       {SUGGESTIONS.map(s => (
@@ -192,7 +192,7 @@ const HomeScreen = ({ go, child }) => (
   <div className="scroll fade-in" style={{ background: 'var(--bg-app)' }}>
     <TopBar go={go} child={child}/>
     <FeatureChips go={go}/>
-    <RecoCard go={go}/>
+    <RecoCard go={go} child={child}/>
     <LanjutMain go={go}/>
     <PromoBanner go={go}/>
     <SuggestionRow go={go}/>
