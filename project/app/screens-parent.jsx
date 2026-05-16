@@ -4,11 +4,17 @@
 // ─────────────────────────────────────────────────────────────
 
 const { useState: uS4 } = React;
-const PIN = '1234';
-
-const ParentPin = ({ go }) => {
+const ParentPin = ({ go, session }) => {
+  const [storedPin, setStoredPin] = uS4('1234');
   const [pin, setPin] = uS4('');
   const [err, setErr] = uS4(false);
+
+  React.useEffect(() => {
+    if (!session) return;
+    window.CerriaDB.getProfile(session.user.id).then(p => {
+      if (p && p.parent_pin) setStoredPin(p.parent_pin);
+    });
+  }, [session && session.user.id]);
 
   const press = (n) => {
     if (err) setErr(false);
@@ -16,7 +22,7 @@ const ParentPin = ({ go }) => {
     setPin(next);
     if (next.length === 4) {
       setTimeout(() => {
-        if (next === PIN) go('parent-dash');
+        if (next === storedPin) go('parent-dash');
         else { setErr(true); setTimeout(() => { setPin(''); setErr(false); }, 700); }
       }, 200);
     }
@@ -55,7 +61,7 @@ const ParentPin = ({ go }) => {
             <button onClick={back} style={{ background: 'rgba(255,255,255,.18)', color: '#fff', boxShadow: 'none' }}><Icon name="arrow-left" size={20} color="#fff"/></button>
           </div>
         </div>
-        <div className="small" style={{ color: 'rgba(255,255,255,.6)', marginTop: 16 }}>Tip: gunakan <b>1234</b> untuk demo</div>
+        <div className="small" style={{ color: 'rgba(255,255,255,.6)', marginTop: 16 }}>Tip: PIN default <b>1234</b></div>
       </div>
     </div>
   );
@@ -74,10 +80,25 @@ const fmtMins = (m) => m >= 60 ? `${Math.floor(m/60)}j ${m%60}m` : `${m} mnt`;
 
 const CHILD_COLORS = [['#FFD17A','#FF8C42'],['#6FD296','#3BB273'],['#7BC8E8','#4EA8DE'],['#C28BD9','#9B59B6'],['#FF8C9A','#E84A6A']];
 
-const ParentDash = ({ go, child, childProfiles = [], setActiveChild }) => {
+const ParentDash = ({ go, child, childProfiles = [], setActiveChild, session }) => {
   const [stats, setStats] = uS4(null);
   const [logs, setLogs] = uS4([]);
   const [loading, setLoading] = uS4(true);
+  const [showPinModal, setShowPinModal] = uS4(false);
+  const [newPin, setNewPin] = uS4('');
+  const [pinSuccess, setPinSuccess] = uS4(false);
+
+  const saveNewPin = async (p) => {
+    if (session) await window.CerriaDB.updateProfile(session.user.id, { parent_pin: p });
+    setPinSuccess(true);
+    setTimeout(() => { setShowPinModal(false); setNewPin(''); setPinSuccess(false); }, 1200);
+  };
+  const pressNewPin = (n) => {
+    const next = (newPin + n).slice(0, 4);
+    setNewPin(next);
+    if (next.length === 4) setTimeout(() => saveNewPin(next), 200);
+  };
+  const backNewPin = () => setNewPin(p => p.slice(0, -1));
 
   React.useEffect(() => {
     if (!child) { setLoading(false); return; }
@@ -100,6 +121,7 @@ const ParentDash = ({ go, child, childProfiles = [], setActiveChild }) => {
   const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
 
   return (
+    <div style={{ position:'relative', height:'100%', overflow:'hidden' }}>
     <div className="scroll fade-in">
       <div className="topbar">
         <button onClick={()=>go('home')} className="btn-icon-round"><Icon name="arrow-left" size={20}/></button>
@@ -221,12 +243,12 @@ const ParentDash = ({ go, child, childProfiles = [], setActiveChild }) => {
         <div className="h3" style={{ marginBottom: 8, fontFamily: 'var(--font-display)' }}>Kontrol</div>
         <div className="card" style={{ padding: 4 }}>
           {[
-            { l: 'Batas waktu harian', v: '2 jam', i: 'flame' },
-            { l: 'Konten yang diizinkan', v: child ? `Usia ${child.age_group}` : '—', i: 'shield' },
-            { l: 'Mode tidur', v: 'Auto-stop 2 ep', i: 'moon' },
-            { l: 'Ubah PIN', v: '••••', i: 'settings' },
+            { l: 'Batas waktu harian', v: '2 jam', i: 'flame', onClick: null },
+            { l: 'Konten yang diizinkan', v: child ? `Usia ${child.age_group}` : '—', i: 'shield', onClick: null },
+            { l: 'Mode tidur', v: 'Auto-stop 2 ep', i: 'moon', onClick: null },
+            { l: 'Ubah PIN', v: '••••', i: 'settings', onClick: () => setShowPinModal(true) },
           ].map((r, i, arr) => (
-            <div key={r.l} className="row" style={{ padding: '14px 14px', justifyContent: 'space-between', borderBottom: i < arr.length-1 ? '1px solid var(--ink-line)' : 'none' }}>
+            <div key={r.l} onClick={r.onClick} className="row" style={{ padding: '14px 14px', justifyContent: 'space-between', borderBottom: i < arr.length-1 ? '1px solid var(--ink-line)' : 'none', cursor: r.onClick ? 'pointer' : 'default' }}>
               <div className="row" style={{ gap: 10 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 12, background: '#FFE3CD', color: '#C44A1E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon name={r.i} size={18}/></div>
                 <span style={{ fontWeight: 700, fontSize: 14 }}>{r.l}</span>
@@ -240,6 +262,39 @@ const ParentDash = ({ go, child, childProfiles = [], setActiveChild }) => {
         </div>
       </div>
       <div style={{ height: 40 }}/>
+    </div>
+
+    {showPinModal && (
+      <div className="fade-in" style={{ position:'absolute', inset:0, zIndex:100, background:'rgba(27,42,78,.75)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+        <div className="card" style={{ padding:24, width:'100%', maxWidth:320, textAlign:'center' }}>
+          {pinSuccess ? (
+            <>
+              <div style={{ fontSize:52, lineHeight:1 }}>✅</div>
+              <div className="h3" style={{ marginTop:12, fontFamily:'var(--font-display)' }}>PIN Berhasil Diubah!</div>
+            </>
+          ) : (
+            <>
+              <div className="h3" style={{ fontFamily:'var(--font-display)', marginBottom:4 }}>Buat PIN Baru</div>
+              <div className="small" style={{ color:'var(--ink-2)', marginBottom:18 }}>Masukkan 4 angka PIN baru.</div>
+              <div className="pin-dots" style={{ marginBottom:16 }}>
+                {[0,1,2,3].map(i => (
+                  <div key={i} className={`pin-dot ${newPin.length > i ? 'filled' : ''}`} style={newPin.length > i ? { background:'#FF7A3A', boxShadow:'0 0 0 4px rgba(255,122,58,.2)' } : { background:'rgba(42,31,24,.15)' }}/>
+                ))}
+              </div>
+              <div className="kbd-pin" style={{ maxWidth:240, margin:'0 auto' }}>
+                {[1,2,3,4,5,6,7,8,9].map(n => (
+                  <button key={n} onClick={()=>pressNewPin(n)}>{n}</button>
+                ))}
+                <button style={{ visibility:'hidden' }}/>
+                <button onClick={()=>pressNewPin(0)}>0</button>
+                <button onClick={backNewPin} style={{ background:'rgba(42,31,24,.08)', boxShadow:'none' }}><Icon name="arrow-left" size={18}/></button>
+              </div>
+              <button onClick={() => { setShowPinModal(false); setNewPin(''); }} className="btn btn-secondary btn-block" style={{ marginTop:14 }}>Batal</button>
+            </>
+          )}
+        </div>
+      </div>
+    )}
     </div>
   );
 };

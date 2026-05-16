@@ -5,11 +5,21 @@
 
 const { useState, useEffect, useRef, useMemo } = React;
 
-const BukuLibrary = ({ go }) => {
+const BukuLibrary = ({ go, child }) => {
   const { BOOKS } = window.CERRIA_DATA;
   const [age, setAge] = useState('semua');
   const [genre, setGenre] = useState('semua');
   const [q, setQ] = useState('');
+  const [progressMap, setProgressMap] = useState({});
+
+  useEffect(() => {
+    if (!child) return;
+    window.CerriaDB.getReadingProgress(child.id).then(rows => {
+      const map = {};
+      rows.forEach(r => { map[r.book_id] = r.progress; });
+      setProgressMap(map);
+    });
+  }, [child && child.id]);
 
   const filtered = useMemo(() => BOOKS.filter(b =>
     (age === 'semua' || b.age === age) &&
@@ -53,17 +63,20 @@ const BukuLibrary = ({ go }) => {
       </div>
 
       <div className="wrap" style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        {filtered.map(b => (
-          <button key={b.id} onClick={()=>go('detail',{ bookId: b.id })} className="card" style={{ padding: 10, textAlign: 'left', display: 'block' }}>
-            <BookCover theme={b.theme} title={b.title} w={'100%'} h={170} rounded={14}/>
-            <div className="h3" style={{ marginTop: 10, fontSize: 15, fontFamily: 'var(--font-display)' }}>{b.title}</div>
-            <div className="small">{b.author}</div>
-            <div className="row" style={{ marginTop: 8, justifyContent: 'space-between' }}>
-              <span className="tag" style={{ background: '#FFE3CD', color: '#C44A1E' }}>{b.age} thn</span>
-              {b.progress > 0 && <span className="small" style={{ color: 'var(--c-orange)', fontWeight: 800 }}>{Math.round(b.progress*100)}%</span>}
-            </div>
-          </button>
-        ))}
+        {filtered.map(b => {
+          const prog = progressMap[b.id] !== undefined ? progressMap[b.id] : b.progress;
+          return (
+            <button key={b.id} onClick={()=>go('detail',{ bookId: b.id })} className="card" style={{ padding: 10, textAlign: 'left', display: 'block' }}>
+              <BookCover theme={b.theme} title={b.title} w={'100%'} h={170} rounded={14}/>
+              <div className="h3" style={{ marginTop: 10, fontSize: 15, fontFamily: 'var(--font-display)' }}>{b.title}</div>
+              <div className="small">{b.author}</div>
+              <div className="row" style={{ marginTop: 8, justifyContent: 'space-between' }}>
+                <span className="tag" style={{ background: '#FFE3CD', color: '#C44A1E' }}>{b.age} thn</span>
+                {prog > 0 && <span className="small" style={{ color: 'var(--c-orange)', fontWeight: 800 }}>{Math.round(prog*100)}%</span>}
+              </div>
+            </button>
+          );
+        })}
         {filtered.length === 0 && (
           <div style={{ gridColumn: '1 / -1', padding: 30, textAlign: 'center' }}>
             <Mascot size={80} mood="wink"/>

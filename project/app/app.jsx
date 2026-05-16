@@ -236,7 +236,7 @@ function App() {
   let screen;
   switch (route.id) {
     case 'home':             screen = <window.HomeScreen go={go} child={activeChild}/>; break;
-    case 'buku':             screen = <window.BukuLibrary go={go}/>; break;
+    case 'buku':             screen = <window.BukuLibrary go={go} child={activeChild}/>; break;
     case 'detail':           screen = <window.BukuDetail go={go} bookId={route.params.bookId}/>; break;
     case 'reader':           screen = <window.Reader go={go} bookId={route.params.bookId} mode={route.params.mode||'read'} child={activeChild}/>; break;
     case 'modul':            screen = <window.ModulHome go={go}/>; break;
@@ -253,8 +253,8 @@ function App() {
     case 'notifikasi':       screen = <window.NotifikasiScreen go={go}/>; break;
     case 'majalah':          screen = <window.MajalahScreen go={go}/>; break;
     case 'artikel':          screen = <window.ArticleDetail go={go} articleId={route.params.articleId}/>; break;
-    case 'parent-pin':       screen = <window.ParentPin go={go}/>; break;
-    case 'parent-dash':      screen = <window.ParentDash go={go} child={activeChild} childProfiles={childProfiles} setActiveChild={setActiveChild}/>; break;
+    case 'parent-pin':       screen = <window.ParentPin go={go} session={session}/>; break;
+    case 'parent-dash':      screen = <window.ParentDash go={go} child={activeChild} childProfiles={childProfiles} setActiveChild={setActiveChild} session={session}/>; break;
     case 'report':           screen = <window.Report go={go} child={activeChild}/>; break;
     case 'login':            screen = <window.Login go={go}/>; break;
     case 'register':         screen = <window.Register go={go}/>; break;

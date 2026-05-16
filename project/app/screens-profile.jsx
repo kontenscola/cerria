@@ -5,6 +5,25 @@
 
 const { useState: uSP, useEffect: uEP } = React;
 
+const PROF_TYPE = {
+  book:    { l: 'Membaca',      i: 'book',     c: '#FF8C42' },
+  mission: { l: 'Misi',         i: 'map',      c: '#3BB273' },
+  video:   { l: 'Menonton',     i: 'play',     c: '#4EA8DE' },
+  lagu:    { l: 'Mendengarkan', i: 'volume',   c: '#FF7A93' },
+  worksheet:{ l: 'Worksheet',   i: 'subtitle', c: '#9B59B6' },
+};
+
+const relTime = (iso) => {
+  const diff = Date.now() - new Date(iso);
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${Math.max(1, mins)} menit lalu`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} jam lalu`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'Kemarin';
+  return `${days} hari lalu`;
+};
+
 // ── Notifications ────────────────────────────────────────────
 const NOTIFS = [
   { id: 'n1', type: 'streak',   unread: true,  time: '2 menit lalu',   icon: 'flame',   color: '#FF8C42', title: 'Streak 47 hari! 🔥',          body: 'Kamu konsisten belajar 47 hari berturut-turut. Luar biasa!' },
@@ -85,6 +104,25 @@ const ProfileScreen = ({ go, child }) => {
   const [editName, setEditName] = uSP(false);
   const [nameVal, setNameVal] = uSP(child ? child.name : 'Anak');
   const [activeTab, setActiveTab] = uSP('prestasi');
+  const [activityLog, setActivityLog] = uSP([]);
+  const [missionsDone, setMissionsDone] = uSP(0);
+
+  uEP(() => {
+    if (!child) return;
+    Promise.all([
+      window.CerriaDB.getActivityLog(child.id, 200),
+      window.CerriaDB.getMissionProgress(child.id),
+    ]).then(([logs, missions]) => {
+      setActivityLog(logs);
+      setMissionsDone(missions.length);
+    });
+  }, [child && child.id]);
+
+  const booksRead = new Set(activityLog.filter(l => l.type === 'book').map(l => l.content_id)).size;
+  const daysActive = new Set(activityLog.map(l => new Date(l.created_at).toDateString())).size;
+  const totalSecs = activityLog.reduce((s, l) => s + (l.duration || 0), 0);
+  const totalMins = Math.floor(totalSecs / 60);
+  const waktuFmt = totalMins >= 60 ? `${Math.floor(totalMins/60)}j${totalMins % 60 > 0 ? (totalMins%60)+'m' : ''}` : `${totalMins}m`;
 
   const [c1, c2] = AVATAR_COLORS[avatarIdx];
 
@@ -97,14 +135,6 @@ const ProfileScreen = ({ go, child }) => {
     { icon: 'sparkle', color: '#9B59B6', label: 'Juara',        earned: false },
     { icon: 'heart',   color: '#FF7A93', label: 'Sahabat',      earned: false },
     { icon: 'shield',  color: '#C28BD9', label: 'Pelindung',    earned: false },
-  ];
-
-  const HISTORY = [
-    { type: 'book',      label: 'Selesai membaca "Pulau Misterius"',  time: '1 jam lalu',  icon: 'book',    color: '#FF8C42' },
-    { type: 'mission',   label: 'Misi 3 Matematika — 3 bintang',       time: 'Kemarin',     icon: 'map',     color: '#3BB273' },
-    { type: 'lagu',      label: 'Mendengarkan "Bintang Kecil"',        time: 'Kemarin',     icon: 'volume',  color: '#FF7A93' },
-    { type: 'worksheet', label: 'Worksheet "Penjumlahan 1–10" selesai',time: '2 hari lalu', icon: 'subtitle',color: '#9B59B6' },
-    { type: 'video',     label: 'Tonton "Si Kelinci & Sahabat Hutan"', time: '3 hari lalu', icon: 'play',    color: '#4EA8DE' },
   ];
 
   return (
@@ -157,10 +187,10 @@ const ProfileScreen = ({ go, child }) => {
           {/* Stats row */}
           <div className="row" style={{ gap: 16, marginTop: 14 }}>
             {[
-              { v: '12',    l: 'Buku',      icon: 'book'  },
-              { v: '47',    l: 'Hari',      icon: 'flame' },
-              { v: '7',     l: 'Misi',      icon: 'badge' },
-              { v: '2j48m', l: 'Waktu',     icon: 'star'  },
+              { v: booksRead || '—',    l: 'Buku',  },
+              { v: daysActive || '—',   l: 'Hari',  },
+              { v: missionsDone || '—', l: 'Misi',  },
+              { v: totalMins > 0 ? waktuFmt : '—', l: 'Waktu' },
             ].map(s => (
               <div key={s.l} style={{ textAlign: 'center' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18 }}>{s.v}</div>
@@ -225,19 +255,31 @@ const ProfileScreen = ({ go, child }) => {
         {activeTab === 'riwayat' && (
           <div className="fade-in">
             <div className="h3" style={{ marginBottom: 10, fontFamily: 'var(--font-display)' }}>Aktivitas Terbaru</div>
-            <div className="card" style={{ padding: 4 }}>
-              {HISTORY.map((h, i) => (
-                <div key={i} className="row" style={{ padding: '12px 14px', borderBottom: i < HISTORY.length-1 ? '1px solid var(--ink-line)' : 'none', gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: h.color+'22', color: h.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Icon name={h.icon} size={18} color={h.color}/>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13 }}>{h.label}</div>
-                    <div className="small">{h.time}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {activityLog.length === 0 ? (
+              <div style={{ textAlign:'center', padding:'24px 0' }}>
+                <Mascot size={60} mood="wink"/>
+                <div className="h3" style={{ marginTop:8 }}>Belum ada aktivitas</div>
+                <div className="small">Yuk mulai membaca hari ini!</div>
+              </div>
+            ) : (
+              <div className="card" style={{ padding: 4 }}>
+                {activityLog.slice(0, 20).map((l, i, arr) => {
+                  const m = PROF_TYPE[l.type] || { l: l.type, i: 'star', c: '#8C7A6B' };
+                  const label = `${m.l} "${l.content_title}"`;
+                  return (
+                    <div key={l.id} className="row" style={{ padding: '12px 14px', borderBottom: i < arr.length-1 ? '1px solid var(--ink-line)' : 'none', gap: 12 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, background: m.c+'22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon name={m.i} size={18} color={m.c}/>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: 13, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{label}</div>
+                        <div className="small">{relTime(l.created_at)}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
