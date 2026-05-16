@@ -177,6 +177,11 @@ ALTER TABLE public.content_questions   ENABLE ROW LEVEL SECURITY;
 -- content_books
 -- ---------------------------------------------------------------------------
 
+DROP POLICY IF EXISTS "content_books: public read"   ON public.content_books;
+DROP POLICY IF EXISTS "content_books: admin insert"  ON public.content_books;
+DROP POLICY IF EXISTS "content_books: admin update"  ON public.content_books;
+DROP POLICY IF EXISTS "content_books: admin delete"  ON public.content_books;
+
 CREATE POLICY "content_books: public read"
   ON public.content_books FOR SELECT
   TO anon, authenticated
@@ -201,6 +206,11 @@ CREATE POLICY "content_books: admin delete"
 -- ---------------------------------------------------------------------------
 -- content_episodes
 -- ---------------------------------------------------------------------------
+
+DROP POLICY IF EXISTS "content_episodes: public read"   ON public.content_episodes;
+DROP POLICY IF EXISTS "content_episodes: admin insert"  ON public.content_episodes;
+DROP POLICY IF EXISTS "content_episodes: admin update"  ON public.content_episodes;
+DROP POLICY IF EXISTS "content_episodes: admin delete"  ON public.content_episodes;
 
 CREATE POLICY "content_episodes: public read"
   ON public.content_episodes FOR SELECT
@@ -227,6 +237,11 @@ CREATE POLICY "content_episodes: admin delete"
 -- content_songs
 -- ---------------------------------------------------------------------------
 
+DROP POLICY IF EXISTS "content_songs: public read"   ON public.content_songs;
+DROP POLICY IF EXISTS "content_songs: admin insert"  ON public.content_songs;
+DROP POLICY IF EXISTS "content_songs: admin update"  ON public.content_songs;
+DROP POLICY IF EXISTS "content_songs: admin delete"  ON public.content_songs;
+
 CREATE POLICY "content_songs: public read"
   ON public.content_songs FOR SELECT
   TO anon, authenticated
@@ -251,6 +266,11 @@ CREATE POLICY "content_songs: admin delete"
 -- ---------------------------------------------------------------------------
 -- content_worksheets
 -- ---------------------------------------------------------------------------
+
+DROP POLICY IF EXISTS "content_worksheets: public read"   ON public.content_worksheets;
+DROP POLICY IF EXISTS "content_worksheets: admin insert"  ON public.content_worksheets;
+DROP POLICY IF EXISTS "content_worksheets: admin update"  ON public.content_worksheets;
+DROP POLICY IF EXISTS "content_worksheets: admin delete"  ON public.content_worksheets;
 
 CREATE POLICY "content_worksheets: public read"
   ON public.content_worksheets FOR SELECT
@@ -277,6 +297,11 @@ CREATE POLICY "content_worksheets: admin delete"
 -- content_levels
 -- ---------------------------------------------------------------------------
 
+DROP POLICY IF EXISTS "content_levels: public read"   ON public.content_levels;
+DROP POLICY IF EXISTS "content_levels: admin insert"  ON public.content_levels;
+DROP POLICY IF EXISTS "content_levels: admin update"  ON public.content_levels;
+DROP POLICY IF EXISTS "content_levels: admin delete"  ON public.content_levels;
+
 CREATE POLICY "content_levels: public read"
   ON public.content_levels FOR SELECT
   TO anon, authenticated
@@ -301,6 +326,11 @@ CREATE POLICY "content_levels: admin delete"
 -- ---------------------------------------------------------------------------
 -- content_questions
 -- ---------------------------------------------------------------------------
+
+DROP POLICY IF EXISTS "content_questions: public read"   ON public.content_questions;
+DROP POLICY IF EXISTS "content_questions: admin insert"  ON public.content_questions;
+DROP POLICY IF EXISTS "content_questions: admin update"  ON public.content_questions;
+DROP POLICY IF EXISTS "content_questions: admin delete"  ON public.content_questions;
 
 CREATE POLICY "content_questions: public read"
   ON public.content_questions FOR SELECT
