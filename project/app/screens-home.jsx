@@ -6,13 +6,16 @@
 const { useState: uSH, useEffect: uEH, useRef: uRH, useMemo: uMH } = React;
 
 // ── TopBar ───────────────────────────────────────────────────
-const TopBar = ({ go }) => {
+const TopBar = ({ go, child }) => {
   const unread = (window.NOTIFS || []).filter(n => n.unread).length;
+  const initial = child ? child.name[0].toUpperCase() : '?';
   return (
     <div className="topbar" style={{ background: 'transparent' }}>
       <div>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: 'var(--ink-1)', lineHeight: 1.15 }}>Hai, Bunda! 👋</div>
-        <div style={{ fontSize: 13, color: 'var(--ink-2)', fontWeight: 600, marginTop: 2 }}>Pilihkan untuk Tessa hari ini</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 22, color: 'var(--ink-1)', lineHeight: 1.15 }}>Hai! 👋</div>
+        <div style={{ fontSize: 13, color: 'var(--ink-2)', fontWeight: 600, marginTop: 2 }}>
+          {child ? `Pilihkan untuk ${child.name} hari ini` : 'Selamat datang di Cerria!'}
+        </div>
       </div>
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <button onClick={() => go('notifikasi')} style={{ width: 42, height: 42, borderRadius: 999, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(180,90,40,.10)', position: 'relative', border: 'none', cursor: 'pointer' }}>
@@ -20,7 +23,7 @@ const TopBar = ({ go }) => {
           {unread > 0 && <div style={{ position: 'absolute', top: 6, right: 6, width: 9, height: 9, borderRadius: 999, background: '#E84A4A', border: '2px solid #fff' }}/>}
         </button>
         <button onClick={() => go('profil')} style={{ width: 42, height: 42, borderRadius: 999, background: 'linear-gradient(180deg,#FF9D5C,#FF7A3A)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 0 #C45A23' }}>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: '#fff' }}>T</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 18, color: '#fff' }}>{initial}</span>
         </button>
       </div>
     </div>
@@ -185,9 +188,9 @@ const SuggestionRow = ({ go }) => (
 );
 
 // ── Home Screen ──────────────────────────────────────────────
-const HomeScreen = ({ go }) => (
+const HomeScreen = ({ go, child }) => (
   <div className="scroll fade-in" style={{ background: 'var(--bg-app)' }}>
-    <TopBar go={go}/>
+    <TopBar go={go} child={child}/>
     <FeatureChips go={go}/>
     <RecoCard go={go}/>
     <LanjutMain go={go}/>

@@ -137,13 +137,22 @@ const LaguLibrary = ({ go }) => (
 );
 
 // ── Player ──────────────────────────────────────────────────
-const LaguPlayer = ({ songId, go }) => {
+const LaguPlayer = ({ songId, go, child }) => {
   const song = SONGS.find(s => s.id === songId) || SONGS[0];
   const [playing, setPlaying] = uSL(false);
   const [time, setTime] = uSL(0);
   const totalMs = song.duration * 1000;
   const rafRef = uRL(0);
   const startRef = uRL(0);
+  const sessionStartRef = uRL(Date.now());
+
+  const logAndExit = async (dest, params) => {
+    if (child) {
+      const elapsed = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+      if (elapsed > 5) await window.CerriaDB.logActivity({ childId: child.id, type: 'lagu', contentId: song.id, contentTitle: song.title, duration: elapsed });
+    }
+    go(dest, params || {});
+  };
 
   // Reset on song change
   uEL(() => { setPlaying(false); setTime(0); }, [songId]);
@@ -190,7 +199,7 @@ const LaguPlayer = ({ songId, go }) => {
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Top bar */}
         <div className="topbar">
-          <button onClick={()=>go('lagu')} className="btn-icon-round" style={{ background:'rgba(255,255,255,.2)', color:'#fff', backdropFilter:'blur(8px)' }}>
+          <button onClick={()=>logAndExit('lagu')} className="btn-icon-round" style={{ background:'rgba(255,255,255,.2)', color:'#fff', backdropFilter:'blur(8px)' }}>
             <Icon name="arrow-left" size={20}/>
           </button>
           <div style={{ color:'#fff', textAlign:'center' }}>

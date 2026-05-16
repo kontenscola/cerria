@@ -141,19 +141,26 @@ function App() {
   const [route, setRoute] = React.useState({ id: 'login', params: {} });
   const [session, setSession] = React.useState(undefined);
   const [activeChild, setActiveChild] = React.useState(null);
+  const [childProfiles, setChildProfiles] = React.useState([]);
+  const [todayMins, setTodayMins] = React.useState(0);
   const bp = useBreakpoint();
 
+  const loadProfiles = async (userId) => {
+    const list = await window.CerriaDB.getChildren(userId);
+    setChildProfiles(list);
+    return list;
+  };
+
   const afterLogin = async (s) => {
-    const children = await window.CerriaDB.getChildren(s.user.id);
-    if (children.length === 0) {
+    const list = await loadProfiles(s.user.id);
+    if (list.length === 0) {
       setRoute({ id: 'add-child', params: {} });
     } else {
-      setActiveChild(children[0]);
+      setActiveChild(list[0]);
       setRoute({ id: 'home', params: {} });
     }
   };
 
-  // Auth state listener
   React.useEffect(() => {
     window.CerriaDB.getSession().then(s => {
       setSession(s);
@@ -162,11 +169,19 @@ function App() {
     });
     const sub = window.CerriaDB.onAuthChange(s => {
       setSession(s);
-      if (!s) { setActiveChild(null); setRoute({ id: 'login', params: {} }); }
+      if (!s) { setActiveChild(null); setChildProfiles([]); setRoute({ id: 'login', params: {} }); }
       else if (['login','register','paket','add-child'].includes(route.id)) afterLogin(s);
     });
     return () => sub.unsubscribe();
   }, []);
+
+  React.useEffect(() => {
+    if (!activeChild) return;
+    const load = () => window.CerriaDB.getTodayStats(activeChild.id).then(s => setTodayMins(s.totalMinutes));
+    load();
+    const iv = setInterval(load, 60000);
+    return () => clearInterval(iv);
+  }, [activeChild && activeChild.id]);
 
   const go = (id, params = {}) => setRoute({ id, params });
   const setTab = (tab) => {
@@ -184,6 +199,22 @@ function App() {
 
   const currentTab = (SCREENS.find(s => s.id === route.id) || {}).tab;
   const hasFrame = bp === 'desktop' && t.showFrame;
+
+  const DAILY_LIMIT = 120;
+  const isParentZone = ['parent-pin','parent-dash','report','login','register','paket','add-child'].includes(route.id);
+  const limitReached = !!activeChild && !!session && todayMins >= DAILY_LIMIT && !isParentZone;
+  const limitOverlay = limitReached ? (
+    <div style={{ position:'absolute', inset:0, zIndex:200, background:'rgba(27,42,78,.93)', backdropFilter:'blur(12px)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:28 }}>
+      <div style={{ fontSize:64, lineHeight:1 }}>⏰</div>
+      <div style={{ fontFamily:'var(--font-display)', fontWeight:800, fontSize:24, color:'#fff', textAlign:'center', marginTop:12 }}>Waktu Belajar Selesai!</div>
+      <div style={{ fontSize:14, color:'rgba(255,255,255,.8)', textAlign:'center', marginTop:8, fontWeight:600, lineHeight:1.6, maxWidth:260 }}>
+        {activeChild.name} sudah belajar {todayMins} mnt hari ini. Waktunya istirahat!
+      </div>
+      <button onClick={() => go('parent-pin')} style={{ marginTop:24, height:52, padding:'0 28px', background:'linear-gradient(180deg,#FF9D5C,#FF7A3A)', color:'#fff', borderRadius:999, fontFamily:'var(--font-display)', fontWeight:800, fontSize:15, border:'none', cursor:'pointer', boxShadow:'0 6px 0 #C45A23' }}>
+        Mode Orang Tua 🔐
+      </button>
+    </div>
+  ) : null;
 
   React.useEffect(() => {
     const h = PRIMARY_HUES[t.primaryHue] || PRIMARY_HUES.orange;
@@ -204,7 +235,7 @@ function App() {
 
   let screen;
   switch (route.id) {
-    case 'home':             screen = <window.HomeScreen go={go}/>; break;
+    case 'home':             screen = <window.HomeScreen go={go} child={activeChild}/>; break;
     case 'buku':             screen = <window.BukuLibrary go={go}/>; break;
     case 'detail':           screen = <window.BukuDetail go={go} bookId={route.params.bookId}/>; break;
     case 'reader':           screen = <window.Reader go={go} bookId={route.params.bookId} mode={route.params.mode||'read'} child={activeChild}/>; break;
@@ -212,18 +243,18 @@ function App() {
     case 'peta':             screen = <window.LevelMap go={go} subjectId={route.params.subjectId}/>; break;
     case 'misi':             screen = <window.Mission go={go} child={activeChild} levelId={route.params.levelId} subjectId={route.params.subjectId}/>; break;
     case 'video':            screen = <window.VideoHome go={go}/>; break;
-    case 'player':           screen = <window.VideoPlayer go={go} epId={route.params.epId}/>; break;
+    case 'player':           screen = <window.VideoPlayer go={go} epId={route.params.epId} child={activeChild}/>; break;
     case 'lagu':             screen = <window.LaguLibrary go={go}/>; break;
-    case 'lagu-player':      screen = <window.LaguPlayer go={go} songId={route.params.songId}/>; break;
+    case 'lagu-player':      screen = <window.LaguPlayer go={go} songId={route.params.songId} child={activeChild}/>; break;
     case 'worksheet':        screen = <window.WorksheetLibrary go={go}/>; break;
     case 'worksheet-viewer': screen = <window.WorksheetViewer go={go} wsId={route.params.wsId}/>; break;
     case 'profil':           screen = <window.ProfileScreen go={go} child={activeChild}/>; break;
-    case 'add-child':        screen = <window.AddChild go={go} session={session} onCreated={c => { setActiveChild(c); go('home'); }}/>; break;
+    case 'add-child':        screen = <window.AddChild go={go} session={session} onCreated={async c => { setActiveChild(c); if (session) await loadProfiles(session.user.id); go('home'); }}/>; break;
     case 'notifikasi':       screen = <window.NotifikasiScreen go={go}/>; break;
     case 'majalah':          screen = <window.MajalahScreen go={go}/>; break;
     case 'artikel':          screen = <window.ArticleDetail go={go} articleId={route.params.articleId}/>; break;
     case 'parent-pin':       screen = <window.ParentPin go={go}/>; break;
-    case 'parent-dash':      screen = <window.ParentDash go={go} child={activeChild}/>; break;
+    case 'parent-dash':      screen = <window.ParentDash go={go} child={activeChild} childProfiles={childProfiles} setActiveChild={setActiveChild}/>; break;
     case 'report':           screen = <window.Report go={go} child={activeChild}/>; break;
     case 'login':            screen = <window.Login go={go}/>; break;
     case 'register':         screen = <window.Register go={go}/>; break;
@@ -247,6 +278,7 @@ function App() {
           <Icon name="shield" size={18} color="#9B59B6"/>
         </button>
       )}
+      {limitOverlay}
     </div>
   );
 

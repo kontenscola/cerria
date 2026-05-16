@@ -72,7 +72,9 @@ const TYPE_META = {
 
 const fmtMins = (m) => m >= 60 ? `${Math.floor(m/60)}j ${m%60}m` : `${m} mnt`;
 
-const ParentDash = ({ go, child }) => {
+const CHILD_COLORS = [['#FFD17A','#FF8C42'],['#6FD296','#3BB273'],['#7BC8E8','#4EA8DE'],['#C28BD9','#9B59B6'],['#FF8C9A','#E84A6A']];
+
+const ParentDash = ({ go, child, childProfiles = [], setActiveChild }) => {
   const [stats, setStats] = uS4(null);
   const [logs, setLogs] = uS4([]);
   const [loading, setLoading] = uS4(true);
@@ -104,6 +106,37 @@ const ParentDash = ({ go, child }) => {
         <div className="h3">Dashboard Orang Tua</div>
         <button onClick={()=>go('report')} className="btn-icon-round" style={{ background: '#FF7A3A', color: '#fff' }}><Icon name="badge" size={18} color="#fff"/></button>
       </div>
+
+      {/* Child switcher */}
+      {childProfiles.length > 0 && (
+        <div className="wrap" style={{ marginTop: 10 }}>
+          <div className="small" style={{ fontWeight: 700, color: 'var(--ink-2)', marginBottom: 8 }}>PROFIL ANAK</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {childProfiles.map(c => {
+              const isActive = child && child.id === c.id;
+              const [c1, c2] = CHILD_COLORS[c.avatar_idx % CHILD_COLORS.length] || CHILD_COLORS[0];
+              return (
+                <button key={c.id} onClick={() => setActiveChild && setActiveChild(c)} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px', borderRadius:999, background: isActive ? '#fff' : 'rgba(255,255,255,.5)', border:`2px solid ${isActive ? '#FF7A3A' : 'transparent'}`, boxShadow: isActive ? '0 4px 12px rgba(255,122,58,.2)' : 'none', cursor:'pointer', transition:'all .15s' }}>
+                  <div style={{ width:30, height:30, borderRadius:999, background:`linear-gradient(135deg,${c1},${c2})`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <span style={{ color:'#fff', fontFamily:'var(--font-display)', fontWeight:800, fontSize:13 }}>{c.name[0]}</span>
+                  </div>
+                  <div style={{ textAlign:'left' }}>
+                    <div style={{ fontFamily:'var(--font-display)', fontWeight:800, fontSize:13, color:'var(--ink-1)' }}>{c.name}</div>
+                    <div className="small" style={{ fontSize:10 }}>{c.age_group} thn</div>
+                  </div>
+                  {isActive && <Icon name="check" size={13} color="#FF7A3A"/>}
+                </button>
+              );
+            })}
+            <button onClick={() => go('add-child')} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 14px', borderRadius:999, background:'#FFE3CD', border:'2px solid #FF7A3A', cursor:'pointer' }}>
+              <div style={{ width:30, height:30, borderRadius:999, background:'#FF7A3A', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <Icon name="plus" size={15} color="#fff"/>
+              </div>
+              <span style={{ fontFamily:'var(--font-display)', fontWeight:800, fontSize:13, color:'#C44A1E' }}>Tambah</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="wrap" style={{ marginTop: 6 }}>
         <div className="card-warm" style={{ padding: 16 }}>

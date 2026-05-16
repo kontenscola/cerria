@@ -69,7 +69,7 @@ const VideoHome = ({ go }) => {
   );
 };
 
-const VideoPlayer = ({ epId, go }) => {
+const VideoPlayer = ({ epId, go, child }) => {
   const { EPISODES } = window.CERRIA_DATA;
   const ep = EPISODES.find(e => e.id === epId) || EPISODES[0];
   const next = EPISODES[(EPISODES.indexOf(ep) + 1) % EPISODES.length];
@@ -78,6 +78,15 @@ const VideoPlayer = ({ epId, go }) => {
   const total = 60;
   const [showNext, setShowNext] = uS3(false);
   const [countdown, setCountdown] = uS3(5);
+  const startRef = React.useRef(Date.now());
+
+  const logAndExit = async (dest, params) => {
+    if (child) {
+      const elapsed = Math.floor((Date.now() - startRef.current) / 1000);
+      if (elapsed > 5) await window.CerriaDB.logActivity({ childId: child.id, type: 'video', contentId: ep.id, contentTitle: ep.title, duration: elapsed });
+    }
+    go(dest, params || {});
+  };
 
   uE3(() => {
     if (!playing) return;
@@ -109,7 +118,7 @@ const VideoPlayer = ({ epId, go }) => {
 
       {/* top bar */}
       <div className="topbar" style={{ position: 'relative', zIndex: 2 }}>
-        <button onClick={()=>go('video')} className="btn-icon-round" style={{ background: 'rgba(255,255,255,.16)', color: '#fff', backdropFilter: 'blur(8px)' }}>
+        <button onClick={()=>logAndExit('video')} className="btn-icon-round" style={{ background: 'rgba(255,255,255,.16)', color: '#fff', backdropFilter: 'blur(8px)' }}>
           <Icon name="arrow-left" size={20}/>
         </button>
         <div style={{ color: '#fff', textAlign: 'center' }}>
@@ -158,7 +167,7 @@ const VideoPlayer = ({ epId, go }) => {
             </div>
             <div className="row" style={{ marginTop: 12, gap: 10 }}>
               <button onClick={()=>{ setShowNext(false); setTime(0); setCountdown(5); setPlaying(true); }} className="btn btn-secondary" style={{ flex: 1 }}>Tonton Ulang</button>
-              <button onClick={()=>go('player',{ epId: next.id })} className="btn btn-primary" style={{ flex: 1 }}>Lanjut</button>
+              <button onClick={()=>logAndExit('player',{ epId: next.id })} className="btn btn-primary" style={{ flex: 1 }}>Lanjut</button>
             </div>
           </div>
         </div>
