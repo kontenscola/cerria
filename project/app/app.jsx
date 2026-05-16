@@ -37,6 +37,7 @@ const SCREENS = [
   { id: 'register',          tab: null     },
   { id: 'paket',             tab: null     },
   { id: 'add-child',         tab: null     },
+  { id: 'admin-dash',        tab: null     },
 ];
 
 const PRIMARY_HUES = {
@@ -125,7 +126,7 @@ const NavGrid = ({ go, route }) => (
       ['worksheet','Worksheet'],['worksheet-viewer','WS Viewer'],
       ['majalah','Majalah'],['artikel','Artikel'],
       ['profil','Profil'],['notifikasi','Notif'],
-      ['parent-pin','Parent PIN'],['parent-dash','Parent Dash'],['report','Laporan'],
+      ['parent-pin','Parent PIN'],['parent-dash','Parent Dash'],['report','Laporan'],['admin-dash','Admin'],
     ].map(([id,label]) => (
       <button key={id} onClick={() => {
         const p = id==='detail'?{bookId:'b1'}:id==='reader'?{bookId:'b1'}:id==='peta'?{subjectId:'mat'}:id==='player'?{epId:'v1'}:id==='artikel'?{articleId:'a1'}:id==='lagu-player'?{songId:'s1'}:id==='worksheet-viewer'?{wsId:'w1'}:{};
@@ -143,6 +144,8 @@ function App() {
   const [activeChild, setActiveChild] = React.useState(null);
   const [childProfiles, setChildProfiles] = React.useState([]);
   const [todayMins, setTodayMins] = React.useState(0);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+  const [contentReady, setContentReady] = React.useState(false);
   const bp = useBreakpoint();
 
   const loadProfiles = async (userId) => {
@@ -162,14 +165,23 @@ function App() {
   };
 
   React.useEffect(() => {
+    // Load content from DB and session in parallel
+    window.CerriaDB.loadAppContent().finally(() => setContentReady(true));
+
     window.CerriaDB.getSession().then(s => {
       setSession(s);
-      if (s) afterLogin(s);
-      else setSession(null);
+      if (s) {
+        afterLogin(s);
+        window.CerriaDB.getProfile(s.user.id).then(p => {
+          if (p && p.is_admin) setIsAdmin(true);
+        });
+      } else {
+        setSession(null);
+      }
     });
     const sub = window.CerriaDB.onAuthChange(s => {
       setSession(s);
-      if (!s) { setActiveChild(null); setChildProfiles([]); setRoute({ id: 'login', params: {} }); }
+      if (!s) { setActiveChild(null); setChildProfiles([]); setIsAdmin(false); setRoute({ id: 'login', params: {} }); }
       else if (['login','register','paket','add-child'].includes(route.id)) afterLogin(s);
     });
     return () => sub.unsubscribe();
@@ -191,11 +203,11 @@ function App() {
 
   // Screens that manage their own full-bleed container
   const isSelfShell = ['reader','peta','misi','player','parent-pin','parent-dash',
-    'login','register','paket','lagu-player','add-child'].includes(route.id);
+    'login','register','paket','lagu-player','add-child','admin-dash'].includes(route.id);
 
   // Screens that hide the bottom nav
   const hideNav = ['reader','peta','misi','player','parent-pin','parent-dash',
-    'report','login','register','paket','lagu-player','worksheet-viewer','notifikasi','add-child'].includes(route.id);
+    'report','login','register','paket','lagu-player','worksheet-viewer','notifikasi','add-child','admin-dash'].includes(route.id);
 
   const currentTab = (SCREENS.find(s => s.id === route.id) || {}).tab;
   const hasFrame = bp === 'desktop' && t.showFrame;
@@ -223,8 +235,8 @@ function App() {
     document.documentElement.style.setProperty('--c-primary-shadow', h.shadow);
   }, [t.primaryHue]);
 
-  // Show splash while checking initial session
-  if (session === undefined) {
+  // Show splash while checking initial session + loading content
+  if (session === undefined || !contentReady) {
     return (
       <div className="app" style={{ display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:16, background:'#FAF5E9' }}>
         <img src="uploads/cerria-fix.png" alt="Cerria" style={{ width:160, filter:'drop-shadow(0 3px 8px rgba(180,90,40,.18))' }}/>
@@ -248,7 +260,7 @@ function App() {
     case 'lagu-player':      screen = <window.LaguPlayer go={go} songId={route.params.songId} child={activeChild}/>; break;
     case 'worksheet':        screen = <window.WorksheetLibrary go={go}/>; break;
     case 'worksheet-viewer': screen = <window.WorksheetViewer go={go} wsId={route.params.wsId}/>; break;
-    case 'profil':           screen = <window.ProfileScreen go={go} child={activeChild}/>; break;
+    case 'profil':           screen = <window.ProfileScreen go={go} child={activeChild} isAdmin={isAdmin}/>; break;
     case 'add-child':        screen = <window.AddChild go={go} session={session} onCreated={async c => { setActiveChild(c); if (session) await loadProfiles(session.user.id); go('home'); }}/>; break;
     case 'notifikasi':       screen = <window.NotifikasiScreen go={go}/>; break;
     case 'majalah':          screen = <window.MajalahScreen go={go}/>; break;
@@ -256,6 +268,7 @@ function App() {
     case 'parent-pin':       screen = <window.ParentPin go={go} session={session}/>; break;
     case 'parent-dash':      screen = <window.ParentDash go={go} child={activeChild} childProfiles={childProfiles} setActiveChild={setActiveChild} session={session}/>; break;
     case 'report':           screen = <window.Report go={go} child={activeChild}/>; break;
+    case 'admin-dash':       screen = <window.AdminDash go={go} session={session} isAdmin={isAdmin}/>; break;
     case 'login':            screen = <window.Login go={go}/>; break;
     case 'register':         screen = <window.Register go={go}/>; break;
     case 'paket':            screen = <window.Paket go={go}/>; break;

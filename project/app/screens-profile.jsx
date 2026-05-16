@@ -98,7 +98,7 @@ const AVATAR_COLORS = [
   ['#FF8C9A','#E84A6A'],
 ];
 
-const ProfileScreen = ({ go, child }) => {
+const ProfileScreen = ({ go, child, isAdmin }) => {
   const [avatarIdx, setAvatarIdx] = uSP(child ? child.avatar_idx : 0);
   const [name, setName] = uSP(child ? child.name : 'Anak');
   const [editName, setEditName] = uSP(false);
@@ -320,6 +320,15 @@ const ProfileScreen = ({ go, child }) => {
           </div>
         )}
       </div>
+
+      {/* Admin */}
+      {isAdmin && (
+        <div style={{ padding: '0 18px' }}>
+          <button onClick={() => go('admin-dash')} style={{ width: '100%', height: 52, borderRadius: 999, background: 'linear-gradient(135deg,#5B3A8A,#9B59B6)', color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer', border: 'none', boxShadow: '0 4px 0 rgba(91,58,138,.35)', marginBottom: 10 }}>
+            <Icon name="settings" size={18} color="#fff"/> Dashboard Admin
+          </button>
+        </div>
+      )}
 
       {/* Logout */}
       <div style={{ padding: '8px 18px 0' }}>
