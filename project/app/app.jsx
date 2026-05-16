@@ -210,7 +210,7 @@ function App() {
     case 'reader':           screen = <window.Reader go={go} bookId={route.params.bookId} mode={route.params.mode||'read'} child={activeChild}/>; break;
     case 'modul':            screen = <window.ModulHome go={go}/>; break;
     case 'peta':             screen = <window.LevelMap go={go} subjectId={route.params.subjectId}/>; break;
-    case 'misi':             screen = <window.Mission go={go}/>; break;
+    case 'misi':             screen = <window.Mission go={go} child={activeChild} levelId={route.params.levelId} subjectId={route.params.subjectId}/>; break;
     case 'video':            screen = <window.VideoHome go={go}/>; break;
     case 'player':           screen = <window.VideoPlayer go={go} epId={route.params.epId}/>; break;
     case 'lagu':             screen = <window.LaguLibrary go={go}/>; break;
@@ -224,7 +224,7 @@ function App() {
     case 'artikel':          screen = <window.ArticleDetail go={go} articleId={route.params.articleId}/>; break;
     case 'parent-pin':       screen = <window.ParentPin go={go}/>; break;
     case 'parent-dash':      screen = <window.ParentDash go={go} child={activeChild}/>; break;
-    case 'report':           screen = <window.Report go={go}/>; break;
+    case 'report':           screen = <window.Report go={go} child={activeChild}/>; break;
     case 'login':            screen = <window.Login go={go}/>; break;
     case 'register':         screen = <window.Register go={go}/>; break;
     case 'paket':            screen = <window.Paket go={go}/>; break;

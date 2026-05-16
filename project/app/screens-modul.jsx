@@ -109,7 +109,7 @@ const LevelMap = ({ subjectId = 'mat', go }) => {
             return (
               <div key={lvl.id} style={{ position: 'absolute', left, top, textAlign: 'center', width: 100, marginLeft: -8 }}>
                 <button
-                  onClick={()=>{ if (lvl.status !== 'locked') go('misi',{ levelId: lvl.id }); }}
+                  onClick={()=>{ if (lvl.status !== 'locked') go('misi',{ levelId: lvl.id, subjectId: subjectId }); }}
                   className={`lvl-node ${cls}`}
                   style={{ marginBottom: 6 }}
                 >
@@ -139,15 +139,31 @@ const LevelMap = ({ subjectId = 'mat', go }) => {
 };
 
 // Mission screen — single multiple-choice with apple scene + reward
-const Mission = ({ go }) => {
+const Mission = ({ go, child, levelId, subjectId }) => {
   const { MISSION } = window.CERRIA_DATA;
   const [picked, setPicked] = useSt2(null);
   const [showReward, setShowReward] = useSt2(false);
+  const startRef = React.useRef(Date.now());
 
-  const onPick = (opt) => {
+  const onPick = async (opt) => {
     if (picked) return;
     setPicked(opt);
-    if (opt.correct) setTimeout(() => setShowReward(true), 700);
+    if (opt.correct) {
+      setTimeout(() => setShowReward(true), 700);
+      if (child && levelId) {
+        const elapsed = Math.floor((Date.now() - startRef.current) / 1000);
+        await window.CerriaDB.saveMissionProgress({
+          childId: child.id, levelId: levelId || 1,
+          subjectId: subjectId || 'mat', stars: 3,
+        });
+        await window.CerriaDB.logActivity({
+          childId: child.id, type: 'mission',
+          contentId: `${subjectId || 'mat'}-${levelId || 1}`,
+          contentTitle: `Misi ${levelId || 1} — ${MISSION.prompt.slice(0, 30)}`,
+          duration: elapsed,
+        });
+      }
+    }
   };
 
   const confettiPieces = Array.from({ length: 24 }).map((_, i) => {
